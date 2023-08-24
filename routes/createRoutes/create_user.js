@@ -28,6 +28,8 @@ router.post("/create_user", async (req, res, next) => {
       const data = {
         user: {
           id: user.id,
+          email: user.Email,
+          role: user.Role,
         },
       };
       const authToken = jwt.sign(data, process.env.JWT_KEY);
@@ -38,3 +40,5 @@ router.post("/create_user", async (req, res, next) => {
     res.status(500).send("Some Error Occured");
   }
 });
+
+module.exports = router;

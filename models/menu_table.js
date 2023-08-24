@@ -17,3 +17,4 @@ const menu_table = new Schema({
 });
 
 module.exports = mongoose.model("Menu_Table", menu_table);
+module.exports = mongoose.model("Meal_Item", meal_item);
