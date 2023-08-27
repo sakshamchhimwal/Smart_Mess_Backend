@@ -7,6 +7,8 @@ import logger from "morgan";
 import path from "path";
 import { defaultRouter } from "./routes";
 import { usersRouter } from "./routes/users";
+import authRoutes from "./routes/authRoutes";
+
 
 import connectDB from "./config/connectDB";
 
@@ -26,8 +28,8 @@ app.use(createHttpError);
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", defaultRouter);
+app.use("/auth", authRoutes);
 app.use("/users", usersRouter);
-app.use("/test", require("./routes/test"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -50,4 +52,4 @@ app.listen(3000, () => {
 });
 
 //exporting app to be used in test
-module.exports = app;
+export default app;

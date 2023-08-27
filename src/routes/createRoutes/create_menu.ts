@@ -1,4 +1,5 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import menu_table from "../../models/menu_table";
 import meal_item from "../../models/meal_item";
