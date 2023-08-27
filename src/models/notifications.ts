@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+import mongoose, { Schema } from "mongoose";
 
 const notif = new Schema({
   Title: {

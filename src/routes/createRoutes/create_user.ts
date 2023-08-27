@@ -1,12 +1,12 @@
 require("dotenv").config();
-var express = require("express");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { body, validationResult } = require("express-validator");
-var router = express.Router();
-const User_Schema = require("../../models/user_model");
+import express, { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+export const create_user = express.Router();
+import User_Schema from "../../models/user_model";
+import { JWTLoadData } from "../../Interface/interfaces";
 
-router.post("/create_user", async (req, res, next) => {
+create_user.post("/create_user", async (req: Request, res: Response, next: NextFunction) => {
   try {
     let user = await User_Schema.findOne({ Username: req.body.Username });
     if (user) {
@@ -25,14 +25,14 @@ router.post("/create_user", async (req, res, next) => {
         Last_Name: req.body.Last_Name,
         Last_Login: Date.now(),
       });
-      const data = {
+      const data: JWTLoadData = {
         user: {
           id: user.id,
           email: user.Email,
-          role: user.Role,
+          role: user.Role!,
         },
       };
-      const authToken = jwt.sign(data, process.env.JWT_KEY);
+      const authToken = jwt.sign(data, process.env.JWT_KEY!);
       res.send({ authToken });
     }
   } catch (error) {
@@ -40,5 +40,3 @@ router.post("/create_user", async (req, res, next) => {
     res.status(500).send("Some Error Occured");
   }
 });
-
-module.exports = router;

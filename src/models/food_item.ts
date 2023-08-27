@@ -1,5 +1,4 @@
-const { default: mongoose, Schema } = require("mongoose");
-
+import mongoose, { Schema } from "mongoose";
 const allergen = new Schema({ name: String });
 
 const food_item = new Schema({

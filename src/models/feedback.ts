@@ -1,5 +1,4 @@
-const { default: mongoose, Schema } = require("mongoose");
-
+import mongoose, { Schema } from "mongoose";
 const feedback = new Schema({
   UserID: {
     type: Number,
