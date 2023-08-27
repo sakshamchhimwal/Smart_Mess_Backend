@@ -1,4 +1,6 @@
 import mongoose, { Schema } from "mongoose";
+import mess from "./mess";
+
 const feedback = new Schema({
   UserID: {
     type: Number,
@@ -15,6 +17,10 @@ const feedback = new Schema({
     type: Date,
     required: true,
   },
+  Mess: {
+    type: mess,
+    required: true,
+  }
 });
 
-module.exports = mongoose.model("Feedback", feedback);
+export default mongoose.model("Feedback", feedback);

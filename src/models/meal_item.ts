@@ -1,5 +1,24 @@
-import mongoose, { Schema, mongo } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+const allergen = new Schema({ name: String });
 
-const meal_item = new Schema({ name: String });
+const food_item = new Schema({
+  Name: {
+    type: String,
+    required: true,
+  },
+  Image: {
+    type: String,
+  },
+  Allergens: {
+    type: [allergen],
+  },
+  Calories: {
+    type: Number,
+  },
+  Category: {
+    type: Number,
+    required: true,
+  },
+});
 
-export default mongoose.model("Meal_Item", meal_item);
+export default mongoose.model("FoodItem", food_item);

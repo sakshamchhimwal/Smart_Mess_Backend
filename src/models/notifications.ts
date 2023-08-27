@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
+import mess from "./mess";
 
-const notif = new Schema({
+const notification = new Schema({
   Title: {
     type: String,
     required: true,
@@ -13,6 +14,10 @@ const notif = new Schema({
     type: Date,
     required: true,
   },
+  Mess: {
+    type: mess,
+    required: true,
+  }
 });
 
-module.exports = mongoose.model("Notification", notif);
+export default mongoose.model("Notifications", notification);

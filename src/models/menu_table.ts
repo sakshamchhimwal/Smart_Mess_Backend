@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-
 import meal_item from "./meal_item";
+import mess from "./mess";
+
 const menu_table = new Schema({
   Day: {
     type: String,
@@ -12,6 +13,10 @@ const menu_table = new Schema({
   },
   Meal_Items: {
     type: [meal_item],
+  },
+  Mess: {
+    type: mess,
+    required: true,
   },
 });
 
