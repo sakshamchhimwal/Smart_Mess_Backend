@@ -10,6 +10,7 @@ const User = new Schema({
   },
   Email: {
     type: String,
+    unique: true,
     required: true,
   },
   Phone_Number: {
@@ -27,6 +28,9 @@ const User = new Schema({
   Last_Name: {
     type: String,
     required: true,
+  },
+  Image: {
+    type: String,
   },
   Last_Login: {
     type: Date,

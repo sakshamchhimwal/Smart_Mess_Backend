@@ -23,6 +23,7 @@
     "qs": "^6.11.2"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.5",
     "@types/node": "^20.5.6",

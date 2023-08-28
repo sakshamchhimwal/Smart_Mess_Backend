@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import meal_item from "./meal_item";
+import meal_item from "./mealItem";
 import mess from "./mess";
 
 const menu_table = new Schema({

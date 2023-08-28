@@ -11,14 +11,13 @@ export interface CustomRequest extends Request {
 
 export interface JWTLoadData extends JwtPayload {
   user: {
-    id: Number;
     email: String;
     role: Number;
+    time: Number; // added to make the token dynamic and also to manage sessions
   };
 }
 
 export interface UserData {
-  id: Number;
   email: String;
   role: Number;
 }
@@ -38,6 +37,17 @@ export interface GoogleOauthToken {
   refresh_token: string;
   token_type: string;
   scope: string;
+}
+
+export interface GoogleUserResult {
+  id: string;
+  email: string;
+  verified_email: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  locale: string;
 }
 
 export interface GuestBody extends Request {

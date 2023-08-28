@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import menu_table from "../../../models/menu_table";
+import menu_table from "../../../models/menuTable";
 import mess from "../../../models/mess";
 export const guestTimeTable = express.Router();
 

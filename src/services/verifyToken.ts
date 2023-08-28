@@ -17,7 +17,6 @@ export const verfiyToken = (req: Request, res: Response): UserData => {
     }
   }
   return {
-    id: -1,
     email: "",
     role: -1,
   };
