@@ -31,7 +31,6 @@ export interface MealRequest extends Request {
   };
 }
 
-
 export interface GoogleOauthToken {
   access_token: string;
   id_token: string;
@@ -39,4 +38,14 @@ export interface GoogleOauthToken {
   refresh_token: string;
   token_type: string;
   scope: string;
+}
+
+export interface GuestBody extends Request {
+  body: {
+    name: String;
+    email: String;
+    feedback: String;
+    image: String;
+    mess: String;
+  };
 }

@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import menu_table from "../../models/menu_table";
-import meal_item from "../../models/meal_item";
+import menu_table from "../../../../models/menu_table";
+import meal_item from "../../../../models/meal_item";
 import { NextFunction, Request, Response } from "express";
-import { MealRequest, UserData } from "../../Interface/interfaces";
-import { verfiyToken } from "../../services/verifyToken";
+import { MealRequest, UserData } from "../../../../Interface/interfaces";
+import { verfiyToken } from "../../../../services/verifyToken";
 
 export const create_menu = express.Router();
 

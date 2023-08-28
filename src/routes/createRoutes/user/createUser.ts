@@ -3,8 +3,8 @@ import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 export const create_user = express.Router();
-import User_Schema from "../../models/user_model";
-import { JWTLoadData } from "../../Interface/interfaces";
+import User_Schema from "../../../models/user_model";
+import { JWTLoadData } from "../../../Interface/interfaces";
 
 create_user.post("/create_user", async (req: Request, res: Response, next: NextFunction) => {
   try {
