@@ -4,7 +4,7 @@ import mess from "./mess";
 
 const menu_table = new Schema({
   Day: {
-    type: String,
+    type: Number,
     required: true,
   },
   MealType: {

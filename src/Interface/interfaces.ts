@@ -49,3 +49,16 @@ export interface GuestBody extends Request {
     mess: String;
   };
 }
+
+export interface OngoingMealRequest extends Request {
+  body: {
+    mess: String;
+    date: Date;
+  };
+}
+
+export interface TimeTableReq extends Request {
+  body: {
+    mess: String;
+  };
+}
