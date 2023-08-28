@@ -7,7 +7,8 @@ import logger from "morgan";
 import path from "path";
 import { defaultRouter } from "./routes";
 import { usersRouter } from "./routes/users";
-import authRoutes from "./routes/authRoutes";
+import authRouter from "./routes/authRoutes";
+import cookieParser from "cookie-parser";
 
 
 import connectDB from "./config/connectDB";
@@ -21,6 +22,7 @@ app.set("view engine", "jade");
 //connect to database
 connectDB();
 
+app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -28,7 +30,7 @@ app.use(createHttpError);
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", defaultRouter);
-app.use("/auth", authRoutes);
+app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 
 // catch 404 and forward to error handler

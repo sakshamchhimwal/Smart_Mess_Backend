@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 export const create_user = express.Router();
-import User_Schema from "../../../models/user_model";
+import User_Schema from "../../../models/user";
 import { JWTLoadData } from "../../../Interface/interfaces";
 
 create_user.post("/create_user", async (req: Request, res: Response, next: NextFunction) => {
@@ -27,9 +27,9 @@ create_user.post("/create_user", async (req: Request, res: Response, next: NextF
       });
       const data: JWTLoadData = {
         user: {
-          id: user.id,
           email: user.Email,
           role: user.Role!,
+          time: Date.now(),
         },
       };
       const authToken = jwt.sign(data, process.env.JWT_KEY!);
