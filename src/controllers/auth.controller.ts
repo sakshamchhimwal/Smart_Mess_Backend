@@ -10,7 +10,7 @@ const signupHandler = async (req: Request, res: Response): Promise<Response | un
     try {
         const authCode = req.body.authCode;
         if (!authCode) return res.status(400).send("Auth Code not provided");
-        const userAgent = req.get('User-Agent');
+        const userAgent = req.body.userAgent;
         if (userAgent === 'AndroidApp') {
             // Handle Android signup
             try {
@@ -70,6 +70,7 @@ const signupHandler = async (req: Request, res: Response): Promise<Response | un
             }
         } else {
             // Handle other scenarios or return an error
+            return res.status(400).send("Invalid User Agent");
         }
     } catch {
         return res.status(500).send("Some Error Occured");
