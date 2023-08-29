@@ -26,13 +26,36 @@ guestTimeTable.get(
 currentMeal.get(
   "/guestCurrentMeal",
   async (req: OngoingMealRequest, res: Response, next: NextFunction) => {
-    let currMess = await mess.findOne({ messName: req.body.mess });
-    if (!currMess) {
-      res.status(404).send("Mess Not Found");
+    try {
+      let currMess = await mess.findOne({ messName: req.body.mess });
+      if (!currMess) {
+        res.status(404).send("Mess Not Found");
+      }
+      let day: number = req.body.date.getDay();
+      let time: number = req.body.date.getHours();
+      if (time > 22 && time < 10) {
+        res
+          .status(400)
+          .send(menu_table.findOne({ Mess: currMess } && { MealType: 1 } && { Day: day }));
+      }
+      if (time > 10 && time < 15) {
+        res
+          .status(400)
+          .send(menu_table.findOne({ Mess: currMess } && { MealType: 2 } && { Day: day }));
+      }
+      if (time > 15 && time < 18) {
+        res
+          .status(400)
+          .send(menu_table.findOne({ Mess: currMess } && { MealType: 3 } && { Day: day }));
+      }
+      if (time > 18 && time < 22) {
+        res
+          .status(400)
+          .send(menu_table.findOne({ Mess: currMess } && { MealType: 4 } && { Day: day }));
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("Unexpected Error");
     }
-    let day: Number = req.body.date.getDay();
-    let time: Number = req.body.date.getHours();
-    let mealType: Number;
-    // if(time>8 && time<)
   }
 );
