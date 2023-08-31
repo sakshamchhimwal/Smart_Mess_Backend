@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./dist/app.js",
-    "dev": "nodemon src/app.ts",
-    "build": "npx tsc -p ."
+    "dev": "npm run build:watch",
+    "build": "tsc",
+    "build:watch": "tsc -w | nodemon ./dist/app.js"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -16,8 +17,10 @@
     "debug": "~2.6.9",
     "dotenv": "^16.3.1",
     "express": "~4.16.1",
+    "google-auth-library": "^9.0.0",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.4.3",
     "morgan": "~1.9.1",
     "qs": "^6.11.2"

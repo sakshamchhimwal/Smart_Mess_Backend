@@ -19,7 +19,7 @@ const User = new Schema({
     length: 10,
   },
   Role: {
-    type: Number, //we will assign the role in the backend so it is not required
+    type: String, //"user"/"admin"/"manager"/"guest"
   },
   First_Name: {
     type: String,

@@ -3,23 +3,23 @@ import { JwtPayload } from "jsonwebtoken";
 
 export interface CustomRequest extends Request {
   user: {
-    role: Number;
-    id: Number;
+    role: String;
     email: String;
+    time: Number;
   };
 }
 
 export interface JWTLoadData extends JwtPayload {
   user: {
     email: String;
-    role: Number;
+    role: String;
     time: Number; // added to make the token dynamic and also to manage sessions
   };
 }
 
 export interface UserData {
   email: String;
-  role: Number;
+  role: String;
 }
 
 export interface MealRequest extends Request {
@@ -72,3 +72,5 @@ export interface TimeTableReq extends Request {
     mess: String;
   };
 }
+
+

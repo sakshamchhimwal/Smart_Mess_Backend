@@ -6,12 +6,14 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
 import { defaultRouter } from "./routes";
-import { usersRouter } from "./routes/users";
+import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 import cookieParser from "cookie-parser";
-
+import { Authenticate } from "./middlewares/Authenticate";
+import { Authorize } from "./middlewares/Authorize";
 
 import connectDB from "./config/connectDB";
+
 
 var app = express();
 
@@ -31,7 +33,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", defaultRouter);
 app.use("/auth", authRouter);
-app.use("/users", usersRouter);
+// app.use("/guest")
+// app.use(Authenticate);
+app.use(Authorize);
+app.use("/user", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
