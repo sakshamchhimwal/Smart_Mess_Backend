@@ -10,7 +10,7 @@ getTimeTable.get("/user/dashboard/timetable", (req: Request, res: Response, next
   //add verification layer here
   let data: GoogleUserResult = <GoogleUserResult>(<unknown>"");
   try {
-    let user: userResult = <userResult>(<unknown>User_Schema.findOne({ Username: data.email }));
+    let user: userResult = <userResult>(<unknown>User_Schema.findOne({ Email: data.email }));
     if (!user) {
       res.status(404).send("User Not Found");
     } else {

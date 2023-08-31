@@ -3,7 +3,7 @@ import mess from "./mess";
 
 const feedback = new Schema({
   UserID: {
-    type: Number,
+    type: String,
     required: true,
   },
   Feedback: {
@@ -20,7 +20,7 @@ const feedback = new Schema({
   Mess: {
     type: mess,
     required: true,
-  }
+  },
 });
 
 export default mongoose.model("Feedback", feedback);
