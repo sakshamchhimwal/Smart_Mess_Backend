@@ -30,7 +30,7 @@
 5. /admin/dashboard
 6. /user/dashboard/attendance
 7. /user/dashboard/payments
-8. /user/dashboard/time_table (+ongoing_meal)(unauthorized)
+8. /user/dashboard/timetable (+ongoing_meal)(unauthorized)
 9. /user/notifications
 10. /user/submit_feedback
 11. /manager/dashboard/edit_time_table
