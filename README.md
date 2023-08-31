@@ -24,14 +24,55 @@
 - Error (400 Bad Request): Invalid request due to missing/invalid userAgent or authCode.
 - Error (500 Internal Server Error): Internal server error occurred while processing the request.
 
-2. /login
-3. /user/dashboard
-4. /manager/dashboard
-5. /admin/dashboard
-6. /user/dashboard/attendance
-7. /user/dashboard/payments
-8. /user/dashboard/timetable (+ongoing_meal)(unauthorized)
-9. /user/notifications
+## /login
+
+## /user/dashboard
+
+### Request
+
+- Method: `GET`
+- Endpoint: `/user/dashboard`
+- Request Body:
+
+```json
+{}
+```
+
+### Response
+
+- Success(200): Returns all the user details in JSON format directly extracted from the MongoDB database.
+- Not Found(404): The given user was not found;
+- Error(500): Internal Server Error
+
+## /manager/dashboard
+
+## /admin/dashboard
+
+## /user/dashboard/attendance
+
+## /user/dashboard/payments
+
+## /user/dashboard/timetable
+
+### Request
+
+- Method: `GET`
+- Endpoint: `/user/dashboard/timetable`
+- Request Body:
+
+```json
+{}
+Data is extracted from the cookie
+```
+
+### Response
+
+- Success(200): Returns all the meals that are served in the mess irrespective of the time at which they are served.
+- Not Found(404): If the given mess is not found(unlikely to happen if the choice is from a drop down list);
+- Error(500): Internal Server Error
+
+## /user/notifications
+
 10. /user/submit_feedback
 11. /manager/dashboard/edit_time_table
 12. /manager/dashboard/payments (segregation for the front end team)
