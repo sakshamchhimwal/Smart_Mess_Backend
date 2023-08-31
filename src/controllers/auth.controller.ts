@@ -53,7 +53,7 @@ const signupHandler = async (req: Request, res: Response): Promise<Response | un
                     const payload: JWTLoadData = {
                         user: {
                             email: userInfo.email,
-                            role: 0,
+                            role: "user",
                             time: Date.now(),
                         },
                     };

@@ -12,13 +12,6 @@ export const create_menu = express.Router();
 create_menu.post("/create_menu", async (req: MealRequest, res: Response, next: NextFunction) => {
   try {
     // Verification Layer Yet to be added
-    let user: UserData = verfiyToken(req, res);
-    if (user.role === -1) {
-      res.send("Unauthorized Access").status(401);
-    }
-    if (user.role != 2) {
-      res.status(401).send("Unauthorized Acess");
-    }
     let items = req.body.items.split(",");
     let menu_item: any[] = [];
     items.forEach(async (item: string) => {

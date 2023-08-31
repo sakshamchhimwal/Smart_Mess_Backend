@@ -1,6 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 import { GoogleOauthToken } from "../Interface/interfaces"
+import {OAuth2Client} from 'google-auth-library';
 
 const GOOGLE_OAUTH_CLIENT_ID_WEB = process.env.GOOGLE_OAUTH_CLIENT_ID_WEB as unknown as string;
 const GOOGLE_OAUTH_CLIENT_SECRET_WEB = process.env.GOOGLE_OAUTH_CLIENT_SECRET_WEB as unknown as string;

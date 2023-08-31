@@ -18,6 +18,6 @@ export const verfiyToken = (req: Request, res: Response): UserData => {
   }
   return {
     email: "",
-    role: -1,
+    role: ""
   };
 };
