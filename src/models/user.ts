@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import mess from "./mess";
 const User = new Schema({
   Username: {
     type: String,
@@ -35,6 +36,10 @@ const User = new Schema({
   Last_Login: {
     type: Date,
   },
+  Eating_Mess: {
+    type: mess,
+    required: true,
+  },
 });
 
-export default mongoose.model("User_Model", User);
+export default mongoose.model("User_Schema", User);

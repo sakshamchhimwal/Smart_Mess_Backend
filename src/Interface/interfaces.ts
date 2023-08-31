@@ -73,4 +73,16 @@ export interface TimeTableReq extends Request {
   };
 }
 
-
+export interface userResult {
+  _id: String;
+  Username: String;
+  Password: String;
+  Email: String;
+  Phone_Number: Number;
+  Role: String;
+  First_Name: String;
+  Last_Name: String;
+  Image: String;
+  Last_Login: String;
+  Eating_Mess: unknown;
+}
