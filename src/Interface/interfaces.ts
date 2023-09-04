@@ -22,9 +22,17 @@ export interface UserData {
   role: String;
 }
 
+export interface MealItems {
+  Name: String;
+  Image: String;
+  Allergens: any[];
+  Calories: Number;
+  Category: Number;
+}
+
 export interface MealRequest extends Request {
   body: {
-    items: string;
+    items: MealItems[];
     day: any;
     mealType: any;
   };
@@ -85,4 +93,21 @@ export interface userResult {
   Image: String;
   Last_Login: String;
   Eating_Mess: unknown;
+}
+
+// interface MealItem {
+//   _id: String;
+//   Name: String;
+//   Image: String;
+//   Allergens: any[];
+//   Calories: Number;
+//   Category: Number;
+// }
+
+export interface MenuTableResult {
+  _id: String;
+  Day: Number;
+  MealType: Number;
+  Meal_Items: any[];
+  Mess: any;
 }
