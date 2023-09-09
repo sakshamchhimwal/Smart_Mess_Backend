@@ -1,15 +1,14 @@
 import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { JWTLoadData } from '../Interface/interfaces';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_KEY;
 
-export const createSession = (data: JWTLoadData,res: Response) => {
-  const token = jwt.sign(data, JWT_SECRET as string);
-  // cookie with 1hr expiry ,secure and http only
-  res.cookie('token', token, {
-    httpOnly: true,
-    // secure: true, // only for https
-    maxAge: 3600000,
+export const createSession = (data: JWTLoadData) => {
+  const token = jwt.sign(data, JWT_SECRET as string, {
+    expiresIn: '1d',
   });
+  return token;
 }

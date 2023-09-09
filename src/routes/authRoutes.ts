@@ -1,12 +1,14 @@
 //Purpose : auth API routes
 import express from "express";
 const router = express.Router();
-import { signupHandler, loginHandler } from "../controllers/auth.controller";
+import { webSigninHandler, testHandler } from "../controllers/auth.controller";
 
-//api to signup
-router.post("/signup", signupHandler);
+//api to signin for web
+router.post("/signin/web", webSigninHandler);
 
-//api to login
-router.post("/login", loginHandler);
+//api to login for android
+
+//api to test
+router.get("/test", testHandler);
 
 export default router;

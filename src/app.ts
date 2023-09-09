@@ -1,12 +1,12 @@
+import cors from "cors";
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
-
 import createHttpError, { CreateHttpError } from "http-errors";
 import express, { Express, Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
 import { defaultRouter } from "./routes";
-import userRouter from "./routes/userRoutes";
+// import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 import cookieParser from "cookie-parser";
 import { Authenticate } from "./middlewares/Authenticate";
@@ -24,19 +24,36 @@ app.set("view engine", "jade");
 //connect to database
 connectDB();
 
+app.use(cors());
 app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(createHttpError);
+// app.use(createHttpError);
 app.use(express.static(path.join(__dirname, "public")));
+
+
+// route to set car object as cookie
+app.get("/setcar", (req, res) => {
+  res.cookie('token', "token", {
+    domain: 'localhost',
+    httpOnly: true,
+    maxAge: 3600000,
+  });
+  res.send("car data is stored in cookies");
+});
+
+// route to get car object from cookies
+app.get("/getcar", (req, res) => {
+  res.send(req.cookies);
+});
 
 app.use("/", defaultRouter);
 app.use("/auth", authRouter);
 // app.use("/guest")
 // app.use(Authenticate);
-app.use(Authorize);
-app.use("/user", userRouter);
+// app.use(Authorize);
+// app.use("/user", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -54,8 +71,8 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.render("error");
 });
 
-app.listen(3000, () => {
-  console.log("App listening on port 3000");
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
 
 //exporting app to be used in test

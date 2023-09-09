@@ -5,81 +5,60 @@ import user_model from '../models/user';
 import { createSession } from '../services/createSession';
 import { JWTLoadData } from '../Interface/interfaces';
 
-
-const signupHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
+const webSigninHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
     try {
-        const authCode = req.body.authCode;
-        if (!authCode) return res.status(400).send("Auth Code not provided");
-        const userAgent = req.body.userAgent;
-        if (userAgent === 'AndroidApp') {
-            // Handle Android signup
+        const {authCode} = req.body;
+        console.log(req.body);
+        if(!authCode) return res.status(400).send("authCode not provided");
+        // Handle web signup
+        try {
+            const tokeninfo = await getGoogleOauthTokenWeb({authCode});
             try {
-                const tokenInfo = await getGoogleOauthTokenAndroid(authCode);
-                console.log(tokenInfo);
-                try {
-                    const userInfo = await getGoogleUser(tokenInfo);
-                    console.log(userInfo);
-                } catch (err) {
-                    console.log(err);
-                    res.status(500).send("Some Error Occured while fetching user info");
-                }
-            } catch (err) {
-                console.log(err);
-                res.status(500).send("Some Error Occured while fetching token info");
-            }
-        } else if (userAgent === 'WebApp') {
-            // Handle web signup
-            try {
-                const tokenInfo = await getGoogleOauthTokenWeb(authCode);
-                console.log(tokenInfo);
-                try {
-                    const userInfo = await getGoogleUser(tokenInfo);
-                    console.log(userInfo);
-                    //check if user already exists
-                    const user = await user_model.findOne({ Email: userInfo.email });
-                    if (user) return res.status(400).send("User Already Exists");
+                const userInfo = await getGoogleUser(tokeninfo);
+                //check if user already exists
+                let user = await user_model.findOne({ Email: userInfo.email });
+                if(!user){
                     //create new user
                     const newUser = await user_model.create({
                         Username: userInfo.name,
                         Email: userInfo.email,
                         Phone_Number: 0,
-                        Role: 0,
+                        Role: "user",
                         First_Name: userInfo.given_name,
                         Last_Name: userInfo.family_name,
                         Image: userInfo.picture,
                         Last_Login: Date.now()
                     });
-                    //create session
-                    const payload: JWTLoadData = {
-                        user: {
-                            email: userInfo.email,
-                            role: "user",
-                            time: Date.now(),
-                        },
-                    };
-                    createSession(payload, res);
-                    //send response
-                    return res.status(201).send("Signup Successful");
-                } catch (err) {
-                    console.log(err);
-                    return res.status(500).send("Some Error Occured while fetching user info");
+                    user = newUser;
                 }
+                // console.log(user);
+                //create session
+                const payload: JWTLoadData = {
+                    user: {
+                        email: user.Email,
+                        role: user.Role as string,
+                        time: Date.now(),
+                    },
+                };
+                const token= createSession(payload);
+                return res.status(201).send({token});
             } catch (err) {
                 console.log(err);
-                return res.status(500).send("Some Error Occured while fetching token");
+                return res.status(500).send("Some Error Occured while fetching user info");
             }
-        } else {
-            // Handle other scenarios or return an error
-            return res.status(400).send("Invalid User Agent");
+        } catch (err) {
+            console.log(err);
+            return res.status(500).send("Some Error Occured while access token");
         }
     } catch {
         return res.status(500).send("Some Error Occured");
     }
 }
 
-//yet to be implemented
-const loginHandler = async (req: Request, res: Response): Promise<Response> => {
-    return res.status(200).send("Login Successful");
+const testHandler = async (req: Request, res: Response): Promise<Response> => {
+    //log cookie
+    // console.log(req);
+    return res.status(200).send("Test Successful");
 }
 
-export { signupHandler, loginHandler };
+export { webSigninHandler, testHandler };
