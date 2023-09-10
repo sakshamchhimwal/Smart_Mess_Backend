@@ -19,6 +19,9 @@ const food_item = new Schema({
     type: Number,
     required: true,
   },
+  Rating: {
+    type: Number,
+  },
 });
 
 export default mongoose.model("FoodItem", food_item);

@@ -92,7 +92,7 @@ export interface userResult {
   Last_Name: String;
   Image: String;
   Last_Login: String;
-  // Eating_Mess: unknown;
+  Eating_Mess: unknown;
 }
 
 // interface MealItem {

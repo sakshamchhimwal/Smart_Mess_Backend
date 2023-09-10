@@ -32,10 +32,10 @@ const User = new Schema({
   Last_Login: {
     type: Date,
   },
-  // Eating_Mess: {
-  //   type: mess,
-  //   required: true,
-  // },
+  Eating_Mess: {
+    type: mess,
+    required: true,
+  },
 });
 
 export default mongoose.model("User_Schema", User);
