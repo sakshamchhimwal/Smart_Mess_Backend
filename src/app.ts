@@ -8,6 +8,7 @@ import path from "path";
 import { defaultRouter } from "./routes";
 // import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
+import guestRouter from "./routes/guestRoutes";
 import cookieParser from "cookie-parser";
 import { Authenticate } from "./middlewares/Authenticate";
 import { Authorize } from "./middlewares/Authorize";
@@ -33,24 +34,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 
-// route to set car object as cookie
-app.get("/setcar", (req, res) => {
-  res.cookie('token', "token", {
-    domain: 'localhost',
-    httpOnly: true,
-    maxAge: 3600000,
-  });
-  res.send("car data is stored in cookies");
-});
-
-// route to get car object from cookies
-app.get("/getcar", (req, res) => {
-  res.send(req.cookies);
-});
-
-app.use("/", defaultRouter);
+// app.use("/", defaultRouter);
 app.use("/auth", authRouter);
-// app.use("/guest")
+app.use("/guest",guestRouter);
 // app.use(Authenticate);
 // app.use(Authorize);
 // app.use("/user", userRouter);

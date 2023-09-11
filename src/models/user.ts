@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import mess from "./mess";
+import Mess from "./mess";
 const User = new Schema({
   Username: {
     type: String,
@@ -33,7 +33,8 @@ const User = new Schema({
     type: Date,
   },
   Eating_Mess: {
-    type: mess,
+    type: Schema.Types.ObjectId,
+    ref: "Mess",
     required: true,
   },
 });

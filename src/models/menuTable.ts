@@ -4,18 +4,21 @@ import mess from "./mess";
 
 const menu_table = new Schema({
   Day: {
-    type: Number,
+    type: String,
     required: true,
   },
   MealType: {
-    type: Number,
+    type: String,
     required: true,
   },
   Meal_Items: {
-    type: [meal_item],
+    type: [Schema.Types.ObjectId],
+    ref: "meal_item",
+    required: true,
   },
   Mess: {
-    type: mess,
+    type: Schema.Types.ObjectId,
+    ref: "mess",
     required: true,
   },
 });

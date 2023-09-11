@@ -1,6 +1,4 @@
 import express from "express";
-import { Authenticate } from "../middlewares/Authenticate";
-import { Authorize } from "../middlewares/Authorize";
 import {
   createGuestUserHandler,
   guestCurrentMeal,
@@ -8,6 +6,8 @@ import {
 } from "../controllers/guest.controller";
 const router = express.Router();
 
-router.post("/createGuest", Authenticate, Authorize, createGuestUserHandler);
-router.get("/guestTimeTable", Authenticate, Authorize, guestTimeTableHandler);
-router.get("/guestCurrentMeal", Authenticate, Authorize, guestCurrentMeal);
+router.post("/createGuest",  createGuestUserHandler);
+router.post("/guestTimeTable",  guestTimeTableHandler);
+router.get("/guestCurrentMeal",  guestCurrentMeal);
+
+export default router;

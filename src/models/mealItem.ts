@@ -9,18 +9,15 @@ const food_item = new Schema({
   Image: {
     type: String,
   },
-  Allergens: {
-    type: [allergen],
-  },
+  // Allergens: {
+  //   type: [allergen],
+  // },
   Calories: {
     type: Number,
   },
   Category: {
     type: Number,
     required: true,
-  },
-  Rating: {
-    type: Number,
   },
 });
 

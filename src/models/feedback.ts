@@ -18,7 +18,8 @@ const feedback = new Schema({
     required: true,
   },
   Mess: {
-    type: mess,
+    type: Schema.Types.ObjectId,
+    ref: "mess",
     required: true,
   },
 });

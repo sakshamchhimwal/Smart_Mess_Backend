@@ -2,7 +2,8 @@ import { GuestBody, TimeTableReq, OngoingMealRequest } from "../Interface/interf
 import express, { Request, Response, NextFunction } from "express";
 import guestFeedBack from "../models/guestFeedBack";
 import mess from "../models/mess";
-import menu_table from "../models/menuTable";
+import menuTable from "../models/menuTable";
+import foodItem from "../models/mealItem";
 
 export const createGuestUserHandler = async (req: GuestBody, res: Response, next: NextFunction) => {
   try {
@@ -40,15 +41,41 @@ export const createGuestUserHandler = async (req: GuestBody, res: Response, next
 export const guestTimeTableHandler = async (
   req: TimeTableReq,
   res: Response,
-  next: NextFunction
 ) => {
   try {
+    console.log(req.body.mess);
     let currMess = await mess.findOne({ messName: req.body.mess });
     if (!currMess) {
       res.status(404).send("Mess Not Found");
     } else {
-      let meals: any = await menu_table.find({ Mess: currMess });
-      res.send(meals).status(200);
+      let meals = await menuTable.find({ Mess: currMess._id });
+      let allFoodItems = await foodItem.find();
+      let result: Map<string, any> = new Map();
+      meals.forEach(async (meal) => {
+        let day = meal.Day;
+        let mealType = meal.MealType;
+        let mealItems: any=[];
+        meal.Meal_Items.forEach((item) => {
+          let currItem = allFoodItems.find((food) => food._id.toString() === item.toString());
+          mealItems.push(currItem);
+        });
+        if (result.has(day)) {
+          let currDay = result.get(day);
+          currDay[mealType] = mealItems;
+          result.set(day, currDay);
+        } else {
+          let currDay: any = {};
+          currDay[mealType] = mealItems;
+          result.set(day, currDay);
+        }
+      });
+      //jsonify result
+      let finalResult: any = {};
+      result.forEach((value, key) => {
+        finalResult[key] = value;
+      }
+      );
+      res.status(200).send(finalResult);
     }
   } catch (err) {
     console.log(err);
@@ -71,22 +98,22 @@ export const guestCurrentMeal = async (
     if (time > 22 && time < 10) {
       res
         .status(400)
-        .send(menu_table.findOne({ Mess: currMess } && { MealType: 1 } && { Day: day }));
+        .send(menuTable.findOne({ Mess: currMess } && { MealType: 1 } && { Day: day }));
     }
     if (time > 10 && time < 15) {
       res
         .status(400)
-        .send(menu_table.findOne({ Mess: currMess } && { MealType: 2 } && { Day: day }));
+        .send(menuTable.findOne({ Mess: currMess } && { MealType: 2 } && { Day: day }));
     }
     if (time > 15 && time < 18) {
       res
         .status(400)
-        .send(menu_table.findOne({ Mess: currMess } && { MealType: 3 } && { Day: day }));
+        .send(menuTable.findOne({ Mess: currMess } && { MealType: 3 } && { Day: day }));
     }
     if (time > 18 && time < 22) {
       res
         .status(400)
-        .send(menu_table.findOne({ Mess: currMess } && { MealType: 4 } && { Day: day }));
+        .send(menuTable.findOne({ Mess: currMess } && { MealType: 4 } && { Day: day }));
     }
   } catch (err) {
     console.log(err);
