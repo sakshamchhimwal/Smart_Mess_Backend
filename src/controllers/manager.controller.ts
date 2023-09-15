@@ -1,7 +1,8 @@
-// import express from "express";
+import express from "express";
 // import menu_table from "../models/menuTable";
 // import meal_item from "../models/mealItem";
-// import { NextFunction, Response } from "express";
+import { NextFunction, Response } from "express";
+import { sendNotification } from "../config/firebaseWeb";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 // import mess from "../models/mess";
 // import user from "../models/user";
@@ -79,24 +80,17 @@
 //   }
 // };
 
-// export const makeAnnouncements = async (req: any, res: Response, next: NextFunction) => {
-//   try {
-//     let manager = await (<userResult>(<unknown>user.findOne({ Email: req.user.email })));
-//     if (!manager) {
-//       res.send("Manager Not Found").status(404);
-//     } else {
-//       await notifications.create({
-//         Title: req.body.title,
-//         Message: req.body.message,
-//         Date: Date.now(),
-//         Mess: (<userResult>(<unknown>user.findOne({ Email: req.user.email }))).Eating_Mess,
-//       });
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.status(501).send("Unexpected Error");
-//   }
-// };
+export const makeAnnouncements = async (req: any, res: Response) => {
+    const {token, title, body} = req.body;
+    if(!token || !title || !body) return res.status(400).send("Invalid Request");
+    try {
+        await sendNotification(token, title, body);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send("Some Error Occured");
+    }
+    return res.status(200).send("Test Successful");
+};
 
 // export const viewRatings = async (req: any, res: Response, next: NextFunction) => {
 //   try {

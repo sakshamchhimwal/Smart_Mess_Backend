@@ -9,6 +9,6 @@ router.post("/signin/web", webSigninHandler);
 //api to login for android
 
 //api to test
-router.get("/test", testHandler);
+router.post("/test", testHandler);
 
 export default router;

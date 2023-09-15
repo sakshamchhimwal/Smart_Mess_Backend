@@ -4,6 +4,7 @@ import { getGoogleUser } from '../services/getGoogleUser';
 import user_model from '../models/user';
 import { createSession } from '../services/createSession';
 import { JWTLoadData } from '../Interface/interfaces';
+import { sendNotification } from '../config/firebaseWeb';
 
 const webSigninHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
     try {
@@ -57,8 +58,14 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
 }
 
 const testHandler = async (req: Request, res: Response): Promise<Response> => {
-    //log cookie
-    // console.log(req);
+    const {token, title, body} = req.body;
+    if(!token || !title || !body) return res.status(400).send("Invalid Request");
+    try {
+        await sendNotification(token, title, body);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send("Some Error Occured");
+    }
     return res.status(200).send("Test Successful");
 }
 
