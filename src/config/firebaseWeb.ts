@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 
-const config={
+const config = {
     "type": process.env.FIREBASE_TYPE,
     "project_id": process.env.FIREBASE_PROJECT_ID as string,
     "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
@@ -12,15 +12,16 @@ const config={
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-y8g9m%40smart-mess-web.iam.gserviceaccount.com",
     "universe_domain": "googleapis.com"
-  }
-  
+}
+
 admin.initializeApp({
-  credential: admin.credential.cert(config as admin.ServiceAccount),
+    credential: admin.credential.cert(config as admin.ServiceAccount),
 });
 
 
 export const sendNotification = async (token: string, title: string, body: string) => {
     try {
+        console.log("Sending Notification called")
         const message = {
             notification: {
                 title: title,
@@ -30,7 +31,7 @@ export const sendNotification = async (token: string, title: string, body: strin
         };
         const response = await admin.messaging().send(message);
         console.log('Successfully sent message:', response);
-    }catch(error){
+    } catch (error) {
         console.error(error);
     }
 };

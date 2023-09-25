@@ -3,6 +3,7 @@ import express from "express";
 // import meal_item from "../models/mealItem";
 import { NextFunction, Response } from "express";
 import { sendNotification } from "../config/firebaseWeb";
+import notificationToken from "../models/notificationToken";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 // import mess from "../models/mess";
 // import user from "../models/user";
@@ -81,15 +82,21 @@ import { sendNotification } from "../config/firebaseWeb";
 // };
 
 export const makeAnnouncements = async (req: any, res: Response) => {
-    const {token, title, body} = req.body;
-    if(!token || !title || !body) return res.status(400).send("Invalid Request");
+    const { title, body} = req.body;
+    if(!title || !body) return res.status(400).send("Invalid Request");
     try {
-        await sendNotification(token, title, body);
-    } catch (err) {
+        const tokens = await notificationToken.find();
+        const tokenList = tokens.map((token) => token.Token);
+        //run a loop to send notification to all tokens
+        for(let i=0; i<tokenList.length; i++){
+            await sendNotification(tokenList[i], title, body);
+        }
+        return res.status(200).send("Notification Sent");
+    }
+    catch (err) {
         console.log(err);
         return res.status(500).send("Some Error Occured");
     }
-    return res.status(200).send("Test Successful");
 };
 
 // export const viewRatings = async (req: any, res: Response, next: NextFunction) => {

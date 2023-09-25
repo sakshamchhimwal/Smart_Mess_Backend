@@ -10,11 +10,13 @@ import { defaultRouter } from "./routes";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
+import notificationRouter from "./routes/notificationRoutes";
 import cookieParser from "cookie-parser";
 import { Authenticate } from "./middlewares/Authenticate";
 import { Authorize } from "./middlewares/Authorize";
 
 import connectDB from "./config/connectDB";
+import notifications from "./models/notifications";
 
 
 var app = express();
@@ -39,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/auth", authRouter);
 app.use("/guest",guestRouter);
 app.use("/manager",managerRoutes);
+app.use("/notification",notificationRouter)
 // app.use(Authenticate);
 // app.use(Authorize);
 // app.use("/user", userRouter);

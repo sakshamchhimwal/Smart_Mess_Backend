@@ -18,6 +18,7 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                 const userInfo = await getGoogleUser(tokeninfo);
                 //check if user already exists
                 let user = await user_model.findOne({ Email: userInfo.email });
+                let isNewUser = false;
                 if(!user){
                     //create new user
                     const newUser = await user_model.create({
@@ -32,6 +33,7 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                         Last_Login: Date.now()
                     });
                     user = newUser;
+                    isNewUser = true;
                 }
                 // console.log(user);
                 //create session
@@ -43,7 +45,8 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                     },
                 };
                 const token= createSession(payload);
-                return res.status(201).send({token});
+                if(isNewUser) return res.status(201).json({token, user});
+                return res.status(200).json({token, user});
             } catch (err) {
                 console.log(err);
                 return res.status(500).send("Some Error Occured while fetching user info");
