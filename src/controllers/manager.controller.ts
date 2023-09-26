@@ -4,6 +4,7 @@ import express from "express";
 import { NextFunction, Response } from "express";
 import { sendNotification } from "../config/firebaseWeb";
 import notificationToken from "../models/notificationToken";
+import notifications from "../models/notifications";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 // import mess from "../models/mess";
 // import user from "../models/user";
@@ -85,6 +86,13 @@ export const makeAnnouncements = async (req: any, res: Response) => {
     const { title, body} = req.body;
     if(!title || !body) return res.status(400).send("Invalid Request");
     try {
+        //add to notification collection
+        const newNotification = await notifications.create({
+            Title: title,
+            Message: body,
+            Date: new Date(),
+            readBy: []
+        });
         const tokens = await notificationToken.find();
         const tokenList = tokens.map((token) => token.Token);
         //run a loop to send notification to all tokens
