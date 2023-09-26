@@ -1,14 +1,15 @@
 import user from "../models/user";
 
 require("dotenv").config();
-import express, { Request, Response, NextFunction } from "express";
+import express, {Request, Response, NextFunction} from "express";
 import User_Schema from "../models/user";
-import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
+import {GoogleUserResult, JWTLoadData, userResult} from "../Interface/interfaces";
 import feedback from "../models/feedback";
 import menuTable from "../models/menuTable";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import notifications from "../models/notifications";
+import mealItem from "../models/mealItem";
 
 // export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
@@ -44,18 +45,40 @@ import notifications from "../models/notifications";
 //   }
 // };
 
-export const userTimeTable = (req:any, res:Response, next: NextFunction) => {
-	let data = req.user;
-	try{
-		let currUser: userResult = <userResult>(<unknown>User_Schema.findOne({Email:data.email}));
-		if(!user){
-			res.status(404).send("User not found");
-		}else{
-			let userMess = currUser.Eating_Mess;
-			let allTimeTable = menuTable.find({Mess:userMess});
-			res.send(allTimeTable).status(200);
+
+const getMenuItems = async (mealItems: any[]) => {
+	let menuItems: any[] = [];
+	for (let i = 0; i < mealItems.length; i++) {
+		let mealDetails = await mealItem.findById(mealItems[i]);
+		if (mealDetails) {
+			menuItems.concat({"Name": mealDetails.Name, "Image": mealDetails.Image});
 		}
-	}catch (e) {
+	}
+	return menuItems;
+}
+
+
+const makeMenuDay = (allTimeTable: any[]) => {
+	let res: any[] = [];
+	for (let i = 0; i < allTimeTable.length; i++) {
+		let items = getMenuItems(allTimeTable[i]);
+		res.concat({"MealType": allTimeTable[i].MealType, "Items": items.toString()});
+	}
+	return res;
+}
+
+export const userTimeTable = async (req: any, res: Response, next: NextFunction) => {
+	let data = req.user;
+	try {
+		let currUser: userResult = await <userResult>(<unknown>User_Schema.findOne({Email: data.email}));
+		if (!user) {
+			res.status(404).send("User not found");
+		} else {
+			let userMess = currUser.Eating_Mess;
+			let allTimeTable = await menuTable.find({Mess: userMess});
+			return makeMenuDay(allTimeTable);
+		}
+	} catch (e) {
 		res.send("Unexpected Error").status(501);
 		console.log(e);
 	}
