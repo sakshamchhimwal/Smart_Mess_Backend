@@ -1,12 +1,14 @@
-// require("dotenv").config();
-// import express, { Request, Response, NextFunction } from "express";
-// import User_Schema from "../models/user";
-// import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
-// import feedback from "../models/feedback";
-// import menuTable from "../models/menuTable";
-// import bcrypt from "bcrypt";
-// import jwt from "jsonwebtoken";
-// import notifications from "../models/notifications";
+import user from "../models/user";
+
+require("dotenv").config();
+import express, { Request, Response, NextFunction } from "express";
+import User_Schema from "../models/user";
+import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
+import feedback from "../models/feedback";
+import menuTable from "../models/menuTable";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import notifications from "../models/notifications";
 
 // export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
@@ -42,6 +44,24 @@
 //   }
 // };
 
+export const userTimeTable = (req:any, res:Response, next: NextFunction) => {
+	let data = req.user;
+	try{
+		let currUser: userResult = <userResult>(<unknown>User_Schema.findOne({Email:data.email}));
+		if(!user){
+			res.status(404).send("User not found");
+		}else{
+			let userMess = currUser.Eating_Mess;
+			let allTimeTable = menuTable.find({Mess:userMess});
+			res.send(allTimeTable).status(200);
+		}
+	}catch (e) {
+		res.send("Unexpected Error").status(501);
+		console.log(e);
+	}
+}
+
+
 // export const userDetails = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
 //   try {
@@ -73,7 +93,7 @@
 //     console.log(error);
 //   }
 // };
-
+//
 // export const createUser = async (req: Request, res: Response, next: NextFunction) => {
 //   try {
 //     let user = await User_Schema.findOne({ Username: req.body.Username });
