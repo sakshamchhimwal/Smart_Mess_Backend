@@ -1,17 +1,39 @@
 import mongoose, { Schema } from "mongoose";
 import mess from "./mess";
+import user from "./user";
 
 const feedback = new Schema({
-  UserID: {
+  Email: {
     type: String,
+    required: true,
+  },
+  BreakfastRating: {
+    type: Number,
+    required: true,
+  },
+  LunchRating: {
+    type: Number,
+    required: true,
+  },
+  DinnerRating: {
+    type: Number,
+    required: true,
+  },
+  SnacksRating: {
+    type: Number,
     required: true,
   },
   Feedback: {
     type: String,
     required: true,
   },
-  Image: {
-    type: String,
+  MessServiceRating: {
+    type: Number,
+    required: true,
+  },
+  HygieneRating: {
+    type: Number,
+    required: true,
   },
   Date: {
     type: Date,

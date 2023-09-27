@@ -10,6 +10,7 @@ const User = new Schema({
 		type: String,
 		unique: true,
 		required: true,
+		indexedDB: true,
 	},
 	Phone_Number: {
 		type: Number,

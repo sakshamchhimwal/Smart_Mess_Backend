@@ -18,32 +18,32 @@ export const webAddNotificationTokenHandler = async (req: Request, res: Response
     }
 };
 
-export const viewNotifications = async (req: CustomRequest|Request, res: Response) => {
+export const getAllNotifications = async (req: CustomRequest | Request, res: Response) => {
     try {
         //if user in req then extact email from user
         const email = ('user' in req) ? req.user.email : null;
-        const user: any=await User.findOne({Email:email});
-        if(!user) console.log(user._id)
+        const user: any = await User.findOne({ Email: email });
+        if (!user) console.log(user._id)
         const notifications = await notification.find();
-        let response: any=[];
-        notifications.forEach((notification)=>{
+        let response: any = [];
+        notifications.forEach((notification) => {
             //push notification to response only with field read: true if user has read the notification and false otherwise
-            if(notification.readBy.includes(user._id)){
+            if (notification.readBy.includes(user._id)) {
                 response.push({
-                    _id:notification._id,
-                    Title:notification.Title,
-                    Message:notification.Message,
-                    Date:notification.Date,
-                    read:true
+                    _id: notification._id,
+                    Title: notification.Title,
+                    Message: notification.Message,
+                    Date: notification.Date,
+                    read: true
                 })
             }
-            else{
+            else {
                 response.push({
-                    _id:notification._id,
-                    Title:notification.Title,
-                    Message:notification.Message,
-                    Date:notification.Date,
-                    read:false
+                    _id: notification._id,
+                    Title: notification.Title,
+                    Message: notification.Message,
+                    Date: notification.Date,
+                    read: false
                 })
             }
         })
@@ -53,5 +53,4 @@ export const viewNotifications = async (req: CustomRequest|Request, res: Respons
         console.log(err);
         return res.status(500).send("Some Error Occured");
     }
-}
-
+};
