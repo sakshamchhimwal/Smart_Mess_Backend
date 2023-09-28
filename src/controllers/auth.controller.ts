@@ -8,18 +8,18 @@ import { sendNotification } from '../config/firebaseWeb';
 
 const webSigninHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
     try {
-        const {authCode} = req.body;
+        const { authCode } = req.body;
         console.log(req.body);
-        if(!authCode) return res.status(400).send("authCode not provided");
+        if (!authCode) return res.status(400).send("authCode not provided");
         // Handle web signup
         try {
-            const tokeninfo = await getGoogleOauthTokenWeb({authCode});
+            const tokeninfo = await getGoogleOauthTokenWeb({ authCode });
             try {
                 const userInfo = await getGoogleUser(tokeninfo);
                 //check if user already exists
                 let user = await user_model.findOne({ Email: userInfo.email });
                 let isNewUser = false;
-                if(!user){
+                if (!user) {
                     //create new user
                     const newUser = await user_model.create({
                         Username: userInfo.name,
@@ -44,9 +44,9 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                         time: Date.now(),
                     },
                 };
-                const token= createSession(payload);
-                if(isNewUser) return res.status(201).json({token, user});
-                return res.status(200).json({token, user});
+                const token = createSession(payload);
+                if (isNewUser) return res.status(201).json({ token, user });
+                return res.status(200).json({ token, user });
             } catch (err) {
                 console.log(err);
                 return res.status(500).send("Some Error Occured while fetching user info");
@@ -61,8 +61,8 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
 }
 
 const testHandler = async (req: Request, res: Response): Promise<Response> => {
-    const {token, title, body} = req.body;
-    if(!token || !title || !body) return res.status(400).send("Invalid Request");
+    const { token, title, body } = req.body;
+    if (!token || !title || !body) return res.status(400).send("Invalid Request");
     try {
         await sendNotification(token, title, body);
     } catch (err) {

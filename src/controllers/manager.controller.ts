@@ -34,6 +34,8 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 
 export const createTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
+	console.log(data);
+
 	try {
 		let currUser = await user.findOne({ Email: data.Email });
 		if (!currUser) {

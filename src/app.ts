@@ -13,6 +13,7 @@ import managerRoutes from "./routes/managerRoutes";
 import notificationRouter from "./routes/notificationRoutes";
 import feedbackRouter from "./routes/feedbackRoutes";
 import cookieParser from "cookie-parser";
+import userRouter from "./routes/userRoutes"
 import { Authenticate } from "./middlewares/Authenticate";
 import { Authorize } from "./middlewares/Authorize";
 import connectDB from "./config/connectDB";
@@ -39,14 +40,13 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // app.use("/", defaultRouter);
 app.use("/auth", authRouter);
-app.use("/guest",guestRouter);
+app.use("/guest", guestRouter);
 // app.use(Authenticate);
-app.use("/notification",notificationRouter);
-app.use("/feedback",feedbackRouter);
-
 // app.use(Authorize);
-// app.use("/user", userRouter);
-app.use("/manager",managerRoutes);
+app.use("/notification", notificationRouter);
+app.use("/feedback", feedbackRouter);
+app.use("/user", userRouter);
+app.use("/manager", Authenticate, Authorize, managerRoutes);
 
 
 

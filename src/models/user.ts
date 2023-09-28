@@ -1,4 +1,4 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import Mess from "./mess";
 
 const User = new Schema({
@@ -37,7 +37,7 @@ const User = new Schema({
 	Eating_Mess: {
 		type: Schema.Types.ObjectId,
 		ref: "Mess",
-		required: true,
+		// required: true,
 	},
 });
 

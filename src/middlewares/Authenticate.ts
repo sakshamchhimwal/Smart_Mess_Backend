@@ -10,7 +10,9 @@ import { head } from "axios";
 export const Authenticate = () => {
     return (req: any, res: Response, next: NextFunction) => {
         // #token Authorization header bearer
+        console.log(req.header("Authorization"));
         const token = req.header("Authorization")?.split(" ")[1];
+        console.log("InAuthenticate");
         if (!token) {
             res.status(404).send("Token not found");
         } else {
