@@ -1,13 +1,14 @@
 import express from "express";
 // import menu_table from "../models/menuTable";
 // import meal_item from "../models/mealItem";
-import {NextFunction, Response} from "express";
-import {sendNotification} from "../config/firebaseWeb";
+import { NextFunction, Response } from "express";
+import { sendNotification } from "../config/firebaseWeb";
 import notificationToken from "../models/notificationToken";
+import notifications from "../models/notifications";
 import user from "../models/user";
 import mealItem from "../models/mealItem";
 import menuTable from "../models/menuTable";
-import mongoose, {ObjectId} from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 // import mess from "../models/mess";
 // import user from "../models/user";
@@ -26,7 +27,7 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 			Category: category
 		});
 		res.send("Inserted").status(200);
-	}catch (e) {
+	} catch (e) {
 		res.send("Unexpected Error").status(501);
 	}
 }
@@ -34,7 +35,7 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 export const createTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
 	try {
-		let currUser = await user.findOne({Email: data.Email});
+		let currUser = await user.findOne({ Email: data.Email });
 		if (!currUser) {
 			res.send("User Not Found").status(404);
 		} else {
@@ -42,7 +43,7 @@ export const createTimeTable = async (req: any, res: Response, next: NextFunctio
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
-			await menuTable.findOneAndUpdate({Mess:userMess,Day:day,MealType:mealType},{$addToSet:{Meal_Items: [new mongoose.Types.ObjectId(newMealItem)]}});
+			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
 			res.send("Inserted").status(200);
 		}
 	} catch (error) {
@@ -96,10 +97,16 @@ export const createTimeTable = async (req: any, res: Response, next: NextFunctio
 // };
 
 export const makeAnnouncements = async (req: any, res: Response) => {
-	console.log("Hello");
-	const {title, body} = req.body;
+	const { title, body } = req.body;
 	if (!title || !body) return res.status(400).send("Invalid Request");
 	try {
+		//add to notification collection
+		const newNotification = await notifications.create({
+			Title: title,
+			Message: body,
+			Date: new Date(),
+			readBy: []
+		});
 		const tokens = await notificationToken.find();
 		const tokenList = tokens.map((token) => token.Token);
 		//run a loop to send notification to all tokens
@@ -107,7 +114,8 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 			await sendNotification(tokenList[i], title, body);
 		}
 		return res.status(200).send("Notification Sent");
-	} catch (err) {
+	}
+	catch (err) {
 		console.log(err);
 		return res.status(500).send("Some Error Occured");
 	}

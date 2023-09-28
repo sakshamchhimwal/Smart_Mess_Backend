@@ -27,6 +27,11 @@ export const sendNotification = async (token: string, title: string, body: strin
                 title: title,
                 body: body
             },
+            // webpush: {
+            //     fcmOptions: {
+            //         link: "http://localhost:3000/login"
+            //     }
+            // },
             token: token
         };
         const response = await admin.messaging().send(message);

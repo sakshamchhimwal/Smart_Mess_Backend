@@ -5,16 +5,16 @@ import createHttpError, { CreateHttpError } from "http-errors";
 import express, { Express, Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
-import { defaultRouter } from "./routes";
+// import { defaultRouter } from "./routes";
 // import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
 import notificationRouter from "./routes/notificationRoutes";
+import feedbackRouter from "./routes/feedbackRoutes";
 import cookieParser from "cookie-parser";
 import { Authenticate } from "./middlewares/Authenticate";
 import { Authorize } from "./middlewares/Authorize";
-
 import connectDB from "./config/connectDB";
 import notifications from "./models/notifications";
 
@@ -40,11 +40,16 @@ app.use(express.static(path.join(__dirname, "public")));
 // app.use("/", defaultRouter);
 app.use("/auth", authRouter);
 app.use("/guest",guestRouter);
-app.use("/manager",managerRoutes);
-app.use("/notification",notificationRouter)
 // app.use(Authenticate);
+app.use("/notification",notificationRouter);
+app.use("/feedback",feedbackRouter);
+
 // app.use(Authorize);
 // app.use("/user", userRouter);
+app.use("/manager",managerRoutes);
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
