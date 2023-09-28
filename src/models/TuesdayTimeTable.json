@@ -1,26 +1,34 @@
 [
   {
-    "Day": "Tuesday",
+    "Day": "Sunday",
     "MealType": "Breakfast",
     "Meal_Items": [],
-    "Mess": ""
+    "Mess": {
+      "$oid": "64fe052e15720924b85bd58d"
+    }
   },
   {
-    "Day": "Tuesday",
+    "Day": "Sunday",
     "MealType": "Lunch",
     "Meal_Items": [],
-    "Mess": ""
+    "Mess": {
+      "$oid": "64fe052e15720924b85bd58d"
+    }
   },
   {
-    "Day": "Tuesday",
+    "Day": "Sunday",
     "MealType": "Snacks",
     "Meal_Items": [],
-    "Mess": ""
+    "Mess": {
+      "$oid": "64fe052e15720924b85bd58d"
+    }
   },
   {
-    "Day": "Tuesday",
+    "Day": "Sunday",
     "MealType": "Dinner",
     "Meal_Items": [],
-    "Mess": ""
+    "Mess": {
+      "$oid": "64fe052e15720924b85bd58d"
+    }
   }
 ]

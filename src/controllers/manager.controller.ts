@@ -1,9 +1,13 @@
 import express from "express";
 // import menu_table from "../models/menuTable";
 // import meal_item from "../models/mealItem";
-import { NextFunction, Response } from "express";
-import { sendNotification } from "../config/firebaseWeb";
+import {NextFunction, Response} from "express";
+import {sendNotification} from "../config/firebaseWeb";
 import notificationToken from "../models/notificationToken";
+import user from "../models/user";
+import mealItem from "../models/mealItem";
+import menuTable from "../models/menuTable";
+import mongoose, {ObjectId} from "mongoose";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 // import mess from "../models/mess";
 // import user from "../models/user";
@@ -11,31 +15,41 @@ import notificationToken from "../models/notificationToken";
 // import menuTable from "../models/menuTable";
 // import notifications from "../models/notifications";
 
-// export const createTimeTable = async (req: MealRequest, res: Response, next: NextFunction) => {
-//   try {
-//     let items = req.body.items;
-//     let menu_item: any[] = [];
-//     items.forEach(async (item: MealItems) => {
-//       let newItem = await meal_item.create({
-//         Name: item,
-//         Image: item.Image,
-//         Allergens: item.Allergens,
-//         Calories: item.Calories,
-//         Category: item.Calories,
-//       });
-//       menu_item.push(newItem);
-//     });
-//     let newMenu = await menu_table.create({
-//       Day: req.body.day,
-//       MealType: req.body.mealType,
-//       Meal_Items: menu_item,
-//     });
-//     res.status(200).send("Added Successfully");
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Some Error Occured");
-//   }
-// };
+export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
+	try {
+		let name = req.body.name;
+		let image = req.body.image;
+		let category = req.body.category;
+		await mealItem.create({
+			Name: name,
+			Image: image,
+			Category: category
+		});
+		res.send("Inserted").status(200);
+	}catch (e) {
+		res.send("Unexpected Error").status(501);
+	}
+}
+
+export const createTimeTable = async (req: any, res: Response, next: NextFunction) => {
+	let data = req.user;
+	try {
+		let currUser = await user.findOne({Email: data.Email});
+		if (!currUser) {
+			res.send("User Not Found").status(404);
+		} else {
+			let userMess = currUser.Eating_Mess;
+			let day = req.body.day;
+			let mealType = req.body.mealType;
+			let newMealItem = req.body.mealItem;
+			await menuTable.findOneAndUpdate({Mess:userMess,Day:day,MealType:mealType},{$addToSet:{Meal_Items: [new mongoose.Types.ObjectId(newMealItem)]}});
+			res.send("Inserted").status(200);
+		}
+	} catch (error) {
+		console.log(error);
+		res.status(500).send("Some Error Occured");
+	}
+};
 
 // export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
 //   try {
@@ -82,22 +96,23 @@ import notificationToken from "../models/notificationToken";
 // };
 
 export const makeAnnouncements = async (req: any, res: Response) => {
-    const { title, body} = req.body;
-    if(!title || !body) return res.status(400).send("Invalid Request");
-    try {
-        const tokens = await notificationToken.find();
-        const tokenList = tokens.map((token) => token.Token);
-        //run a loop to send notification to all tokens
-        for(let i=0; i<tokenList.length; i++){
-            await sendNotification(tokenList[i], title, body);
-        }
-        return res.status(200).send("Notification Sent");
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).send("Some Error Occured");
-    }
+	console.log("Hello");
+	const {title, body} = req.body;
+	if (!title || !body) return res.status(400).send("Invalid Request");
+	try {
+		const tokens = await notificationToken.find();
+		const tokenList = tokens.map((token) => token.Token);
+		//run a loop to send notification to all tokens
+		for (let i = 0; i < tokenList.length; i++) {
+			await sendNotification(tokenList[i], title, body);
+		}
+		return res.status(200).send("Notification Sent");
+	} catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
 };
+
 
 // export const viewRatings = async (req: any, res: Response, next: NextFunction) => {
 //   try {
