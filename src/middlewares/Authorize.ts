@@ -3,17 +3,22 @@ import { verify } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { CustomRequest } from "../Interface/interfaces";
 
-export const Authorize = (req: CustomRequest | Request, res: Response, next: NextFunction) => {
-    console.log("InAuthorize");
-    const role = ('user' in req) ? req.user.role : null;
-    const url_role = req.url.split('/')[1];
-    if (role === url_role) {
-        next();
+export const Authorize = () => {
+    return (req: any, res: Response, next: NextFunction) => {
+        console.log("Authorizing...")
+        const role = req.user.role;
+        const url_role = req.url.split('/')[1];
+        // console.log(role, url_role);
+        if (role === url_role) {
+            console.log("Successfully Authorized...")
+            next();
+        }
+        else {
+            res.status(401).send("Unauthorized Access");
+        }
     }
-    else {
-        res.status(401).send("Unauthorized Access");
-    }
-};
+}
+
 
 
 
