@@ -23,8 +23,8 @@ import notifications from "./models/notifications";
 var app = express();
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+// app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "jade");
 
 //connect to database
 connectDB();
@@ -41,10 +41,12 @@ app.use(express.static(path.join(__dirname, "public")));
 // app.use("/", defaultRouter);
 app.use("/auth", authRouter);
 app.use("/guest", guestRouter);
-// app.use(Authenticate);
-// app.use(Authorize);
+app.use(Authenticate()); //all the routes below this will be authenticated
 app.use("/notification", notificationRouter);
 app.use("/feedback", feedbackRouter);
+
+app.use(Authorize()); //only the below routes have to be authorized
+
 app.use("/user", userRouter);
 app.use("/manager", managerRoutes);
 
