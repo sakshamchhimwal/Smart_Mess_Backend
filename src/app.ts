@@ -45,7 +45,7 @@ app.use(Authenticate()); //all the routes below this will be authenticated
 app.use("/notification", notificationRouter);
 app.use("/feedback", feedbackRouter);
 
-app.use(Authorize());
+app.use(Authorize()); //only the below routes have to be authorized
 
 app.use("/user", userRouter);
 app.use("/manager", managerRoutes);
