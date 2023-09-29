@@ -4,8 +4,8 @@ const router = express.Router();
 // import { Authenticate } from "../middlewares/Authenticate";
 // import { Authorize } from "../middlewares/Authorize";
 import {
-	createNewFoodItem, createTimeTable,
-	makeAnnouncements,
+	createNewFoodItem, addTimeTable,
+	makeAnnouncements, deleteTimeTableHandler
 } from "../controllers/manager.controller";
 
 
@@ -14,7 +14,8 @@ import {
 // router.patch("/dashboard/updateTimeTable", Authenticate, Authorize, updateTimeTableHandler);
 router.post("/dashboard/makeAnnouncement", makeAnnouncements);
 router.put("/dashboard/createFoodItem", createNewFoodItem);
-router.patch("/dashboard/createTimeTable", createTimeTable);
+router.patch("/dashboard/addTimeTable", addTimeTable);
+router.delete("/dashboard/deleteTimeTable", deleteTimeTableHandler);
 // router.get("/dashboard/allRatings", Authenticate, Authorize, viewRatings);
 // router.get("dashboard/ongoingMeal", Authenticate, Authorize, ongoingMeal);
 

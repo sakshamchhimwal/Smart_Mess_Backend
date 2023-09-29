@@ -46,7 +46,7 @@ app.use("/guest", guestRouter);
 app.use("/notification", notificationRouter);
 app.use("/feedback", feedbackRouter);
 app.use("/user", userRouter);
-app.use("/manager", Authenticate, Authorize, managerRoutes);
+app.use("/manager", managerRoutes);
 
 
 

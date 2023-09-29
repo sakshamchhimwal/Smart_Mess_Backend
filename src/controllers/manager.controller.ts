@@ -32,25 +32,25 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 	}
 }
 
-export const createTimeTable = async (req: any, res: Response, next: NextFunction) => {
-	let data = req.user;
-	console.log(data);
+export const addTimeTable = async (req: any, res: Response, next: NextFunction) => {
+	// let data = req.user;
+	// console.log(data);
 
 	try {
-		let currUser = await user.findOne({ Email: data.Email });
+		let currUser = await user.findOne({ Email: req.body.Email });
 		if (!currUser) {
-			res.send("User Not Found").status(404);
+			return res.send("User Not Found").status(404);
 		} else {
 			let userMess = currUser.Eating_Mess;
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
 			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
-			res.send("Inserted").status(200);
+			return res.send("Inserted").status(200);
 		}
 	} catch (error) {
 		console.log(error);
-		res.status(500).send("Some Error Occured");
+		return res.status(500).send("Some Error Occured");
 	}
 };
 
@@ -69,34 +69,29 @@ export const createTimeTable = async (req: any, res: Response, next: NextFunctio
 //   }
 // };
 
-// export const updateTimeTableHandler = async (req: any, res: Response, next: NextFunction) => {
-//   try {
-//     let manager = await (<userResult>(<unknown>user.findOne({ Email: req.user.email })));
-//     if (!manager) {
-//       res.status(404).send("Manager Not Found");
-//     } else {
-//       let newMealItem = await meal_item.create({
-//         Name: req.body.name,
-//         Image: req.body.image,
-//         Allergens: req.body.allergen,
-//         Calories: req.body.calories,
-//         Category: req.body.category,
-//       });
-//       let replaceItem = req.MealId;
-//       let replaceId = req.MenuId;
-//       let mealItems = (<MenuTableResult>(<unknown>menuTable.findById(replaceId))).Meal_Items;
-//       for (let i = 0; i < mealItems.length; i++) {
-//         if (mealItems[i]._id === replaceItem) {
-//           mealItems[i] = newMealItem;
-//         }
-//       }
-//       menuTable.findByIdAndUpdate(replaceId, { Meal_Item: mealItems });
-//     }
-//   } catch (err) {
-//     res.status(501).send("Some Error Occured");
-//     console.log(err);
-//   }
-// };
+export const deleteTimeTableHandler = async (req: any, res: Response, next: NextFunction) => {
+	// let data = req.user;
+	try {
+		let currUser = await user.findOne({ Email: req.body.email });
+		if (!currUser) {
+			return res.send("User Not Found").status(404);
+		} else {
+			let userMess = currUser.Eating_Mess;
+			let day = req.body.day;
+			let mealType = req.body.mealType;
+			let delMealItem = req.body.mealItem;
+			const allFoodItems = await menuTable.findOne({ Mess: userMess, Day: day, MealType: mealType });
+			console.log(allFoodItems?.Meal_Items)
+			const filterItems = allFoodItems?.Meal_Items.filter((objItemId) => { return objItemId._id != delMealItem });
+			console.log(filterItems);
+			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { Meal_Items: filterItems });
+			return res.send("Deleted").status(200);
+		}
+	} catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
+};
 
 export const makeAnnouncements = async (req: any, res: Response) => {
 	const { title, body } = req.body;

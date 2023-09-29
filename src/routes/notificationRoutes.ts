@@ -1,7 +1,7 @@
 //Purpose : notification API routes
 import express from "express";
 const router = express.Router();
-import { webAddNotificationTokenHandler,getAllNotifications } from "../controllers/notification.controller";
+import { webAddNotificationTokenHandler, getAllNotifications, makeRead } from "../controllers/notification.controller";
 
 //api to add notification token
 router.post("/addNotificationToken/web", webAddNotificationTokenHandler);
@@ -10,7 +10,7 @@ router.post("/addNotificationToken/web", webAddNotificationTokenHandler);
 router.post("/getAllNotifications", getAllNotifications);
 
 //api to make notification read by user
-// router.post("/makeRead", makeRead);
+router.post("/makeRead", makeRead);
 
 
 export default router;
