@@ -12,7 +12,6 @@ import mongoose, { ObjectId } from "mongoose";
 import foodItemRatings from "../models/foodItemRatings";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 import mess from "../models/mess";
-import { Console } from "console";
 // import user from "../models/user";
 // import feedback from "../models/feedback";
 // import menuTable from "../models/menuTable";
@@ -46,8 +45,7 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
-			let dayTimeMenu = await menuTable.findOne({ Mess: userMess, Day: day, MealType: mealType });
-			console.log(dayTimeMenu);
+			console.log(new mongoose.Types.ObjectId(newMealItem));
 			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
 			return res.send("Inserted").status(200);
 		}

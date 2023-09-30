@@ -102,6 +102,7 @@ export const userDetails = async (req: any, res: Response, next: NextFunction) =
 
 
 const __initItemRating = async (mess: any, foodItem: string) => {
+	console.log(mess);
 	await foodItemRatings.create({
 		Mess: new mongoose.Types.ObjectId(mess),
 		FoodItem: new mongoose.Types.ObjectId(foodItem)
@@ -115,12 +116,13 @@ export const giveRating = async (req: any, res: Response) => {
 		if (!currUser) {
 			return res.status(404).send("User Not Found");
 		} else {
+			console.log(req.body);
 			let foodId = req.body.foodId;
-			let eatingMess = currUser.Eating_Mess?._id;
+			let eatingMess = currUser.Eating_Mess;
 			let rating = req.body.rating;
 			let currItemRating = await foodItemRatings.findOne({ FoodItem: foodId, Mess: eatingMess });
 			if (!currItemRating) {
-				await __initItemRating(eatingMess!, foodId);
+				await __initItemRating(eatingMess?.toString(), foodId);
 			}
 			currItemRating = await foodItemRatings.findOne({ FoodItem: foodId, Mess: eatingMess });
 			console.log(currItemRating);
@@ -131,7 +133,7 @@ export const giveRating = async (req: any, res: Response) => {
 			return res.send("Updated").status(200);
 		}
 	} catch (err) {
-		console.log(err);
+		// console.log(err);
 		return res.send("Unexpected error occured").status(501);
 	}
 }
