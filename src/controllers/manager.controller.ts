@@ -164,6 +164,15 @@ const __initItemRating = async (mess: any, foodItem: string) => {
 }
 
 
+const detailOneItem = async (mealItemId: any) => {
+	let menuItems = {};
+	let mealDetails = await mealItem.findById(mealItemId);
+	if (mealDetails) {
+		menuItems = { "Name": mealDetails.Name, "Image": mealDetails.Image };
+	}
+	return menuItems;
+}
+
 
 export const getItemRating = async (req: any, res: Response) => {
 	let data = req.user;
@@ -173,20 +182,16 @@ export const getItemRating = async (req: any, res: Response) => {
 			return res.status(404).send("User Not found");
 		}
 		console.log(req.body);
-		let itemId = req.body.itemId;
-		// console.log(itemId);
-		let mess = currUser.Eating_Mess?._id;
+		let itemId = new mongoose.Types.ObjectId(req.body.itemId);
+		let mess = currUser.Eating_Mess;
 		let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
-		console.log(findRating);
-		// if (!findRating) {
-		// 	await __initItemRating(mess!, itemId);
-		// }
+		if (!findRating) {
+			return res.send("Item Not Rated Yet").status(200);
+		}
 		findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
-		console.log(findRating);
-		let itemRate = findRating?.NumberOfReviews === 0 ? NaN : findRating?.Rating;
-		// console.log(itemRate);
-		const opc = getMenuItems([itemId]);
-		const rating = { "ItemDetails": (await opc).toString(), "Rating": itemRate?.toString() };
+		const opc = await detailOneItem(itemId);
+		console.log(opc);
+		const rating = { "ItemDetails": opc, "Rating": findRating?.Rating, "NumberOfRev": findRating?.NumberOfReviews };
 		res.send(rating).status(200);
 	} catch (err) {
 		console.log(err);

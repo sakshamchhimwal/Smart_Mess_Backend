@@ -15,7 +15,7 @@ router.patch("/dashboard/addTimeTable", addTimeTable);
 router.delete("/dashboard/deleteTimeTable", deleteTimeTableHandler);
 router.get("/dashboard/timeTable", managerTimeTable)
 router.get("/dashboard/allFoodItems", getAllFoodItems);
-router.get("/dashboard/getItemRating", getItemRating);
+router.post("/dashboard/getItemRating", getItemRating);
 // router.get("/dashboard/allRatings", Authenticate, Authorize, viewRatings);
 // router.get("dashboard/ongoingMeal", Authenticate, Authorize, ongoingMeal);
 
