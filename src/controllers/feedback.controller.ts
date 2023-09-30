@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import feedback from '../models/feedback';
+import feedback from '../models/actualFeedback';
 
 export const getAllfeedbacks = async (req: Request, res: Response) => {
     try {
@@ -10,3 +10,5 @@ export const getAllfeedbacks = async (req: Request, res: Response) => {
         return res.status(500).send("Some Error Occured");
     }
 };
+
+

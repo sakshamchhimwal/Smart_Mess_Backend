@@ -1,10 +1,16 @@
 import mongoose, { Schema } from "mongoose";
 import mess from "./mess";
 import user from "./user";
+import FeedbackForm from "./feedbackForm";
 
 const feedback = new Schema({
-  Email: {
+  Email: {  //user who gave the feedback
     type: String,
+    required: true,
+  },
+  FormID : {
+    type: Schema.Types.ObjectId,
+    ref: "FeedbackForm",
     required: true,
   },
   BreakfastRating: {
@@ -35,15 +41,11 @@ const feedback = new Schema({
     type: Number,
     required: true,
   },
-  Date: {
-    type: Date,
-    required: true,
-  },
-  Mess: {
-    type: Schema.Types.ObjectId,
-    ref: "mess",
-    required: true,
-  },
+  // Mess: {  //we will add this later if we have mutliple messes
+  //   type: Schema.Types.ObjectId,
+  //   ref: "mess",
+  //   required: true,
+  // },
 });
 
 export default mongoose.model("Feedback", feedback);

@@ -4,7 +4,7 @@ require("dotenv").config();
 import express, { Request, Response, NextFunction } from "express";
 import User_Schema from "../models/user";
 import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
-import feedback from "../models/feedback";
+import feedback from "../models/actualFeedback";
 import menuTable from "../models/menuTable";
 import mealItem from "../models/mealItem";
 import foodItemRatings from "../models/foodItemRatings";

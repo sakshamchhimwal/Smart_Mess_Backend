@@ -19,8 +19,9 @@ const notification = new Schema({
   //   type: mess,
   //   required: true,
   // },
+  //array of user ids who have read the notification
   readBy: {
-    //array of user ids who have read the notification
+    
     type: [Schema.Types.ObjectId],
     ref: "user",
     required: true,
