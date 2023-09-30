@@ -9,8 +9,10 @@ import user from "../models/user";
 import mealItem from "../models/mealItem";
 import menuTable from "../models/menuTable";
 import mongoose, { ObjectId } from "mongoose";
+import foodItemRatings from "../models/foodItemRatings";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 import mess from "../models/mess";
+import { Console } from "console";
 // import user from "../models/user";
 // import feedback from "../models/feedback";
 // import menuTable from "../models/menuTable";
@@ -35,7 +37,6 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 
 export const addTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
-	console.log(data);
 	try {
 		let currUser = await user.findOne({ Email: data.email });
 		if (!currUser) {
@@ -45,6 +46,8 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
+			let dayTimeMenu = await menuTable.findOne({ Mess: userMess, Day: day, MealType: mealType });
+			console.log(dayTimeMenu);
 			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
 			return res.send("Inserted").status(200);
 		}
@@ -153,6 +156,46 @@ export const getAllFoodItems = async (req: any, res: Response) => {
 	}
 	res.send(allItemNames);
 }
+
+
+const __initItemRating = async (mess: any, foodItem: string) => {
+	await foodItemRatings.create({
+		Mess: new mongoose.Types.ObjectId(mess),
+		FoodItem: new mongoose.Types.ObjectId(foodItem)
+	});
+}
+
+
+
+export const getItemRating = async (req: any, res: Response) => {
+	let data = req.user;
+	try {
+		let currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
+			return res.status(404).send("User Not found");
+		}
+		console.log(req.body);
+		let itemId = req.body.itemId;
+		// console.log(itemId);
+		let mess = currUser.Eating_Mess?._id;
+		let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
+		console.log(findRating);
+		// if (!findRating) {
+		// 	await __initItemRating(mess!, itemId);
+		// }
+		findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
+		console.log(findRating);
+		let itemRate = findRating?.NumberOfReviews === 0 ? NaN : findRating?.Rating;
+		// console.log(itemRate);
+		const opc = getMenuItems([itemId]);
+		const rating = { "ItemDetails": (await opc).toString(), "Rating": itemRate?.toString() };
+		res.send(rating).status(200);
+	} catch (err) {
+		console.log(err);
+		res.status(501).send("Internal Error");
+	}
+}
+
 
 
 // export const viewRatings = async (req: any, res: Response, next: NextFunction) => {
