@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 // import menu_table from "../models/menuTable";
 // import meal_item from "../models/mealItem";
 import { NextFunction, Response } from "express";
@@ -10,11 +10,12 @@ import mealItem from "../models/mealItem";
 import menuTable from "../models/menuTable";
 import mongoose, { ObjectId } from "mongoose";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
-// import mess from "../models/mess";
+import mess from "../models/mess";
 // import user from "../models/user";
 // import feedback from "../models/feedback";
 // import menuTable from "../models/menuTable";
 // import notifications from "../models/notifications";
+
 
 export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
 	try {
@@ -33,11 +34,10 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 }
 
 export const addTimeTable = async (req: any, res: Response, next: NextFunction) => {
-	// let data = req.user;
-	// console.log(data);
-
+	let data = req.user;
+	console.log(data);
 	try {
-		let currUser = await user.findOne({ Email: req.body.Email });
+		let currUser = await user.findOne({ Email: data.email });
 		if (!currUser) {
 			return res.send("User Not Found").status(404);
 		} else {
@@ -54,25 +54,52 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 	}
 };
 
-// export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
-//   try {
-//     let currMess = await mess.findOne({ messName: req.body.mess });
-//     if (!currMess) {
-//       res.status(404).send("Mess Not Found");
-//     } else {
-//       let meals: any = await menu_table.find({ Mess: currMess });
-//       res.send(meals).status(200);
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.send("Unexpected Error").status(500);
-//   }
-// };
+const getMenuItems = async (mealItems: any[]) => {
+	let menuItems: any[] = [];
+	for (let i = 0; i < mealItems.length; i++) {
+		let mealDetails = await mealItem.findById(mealItems[i]);
+		if (mealDetails) {
+			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
+		}
+	}
+	return menuItems;
+}
+
+
+const makeMenuDay = (allTimeTable: any[]) => {
+	let res: any[] = [];
+	for (let i = 0; i < allTimeTable.length; i++) {
+		let items = getMenuItems(allTimeTable[i].Meal_Items);
+		res.concat({ "Day": allTimeTable[i].Day, "MealType": allTimeTable[i].MealType, "Items": items.toString() });
+	}
+	return res;
+}
+
+
+export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
+	let data = req.user;
+	// console.log(data.email);
+	try {
+		const currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
+			res.status(404).send("Manager not found");
+		} else {
+			const eatingMess = currUser?.Eating_Mess?._id;
+			// console.log(eatingMess?._id);
+			const allItems = await menuTable.find({ Mess: eatingMess });
+			// console.log(allItems);
+			return res.send(makeMenuDay(allItems)).status(200);
+		}
+	} catch (err) {
+		console.log(err);
+		res.send("Unexpected Error").status(500);
+	}
+};
 
 export const deleteTimeTableHandler = async (req: any, res: Response, next: NextFunction) => {
-	// let data = req.user;
+	let data = req.user;
 	try {
-		let currUser = await user.findOne({ Email: req.body.email });
+		let currUser = await user.findOne({ Email: data.email });
 		if (!currUser) {
 			return res.send("User Not Found").status(404);
 		} else {
@@ -117,6 +144,15 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 		return res.status(500).send("Some Error Occured");
 	}
 };
+
+export const getAllFoodItems = async (req: any, res: Response) => {
+	const foodItems = await mealItem.find();
+	let allItemNames = [];
+	for (let i = 0; i < foodItems.length; i++) {
+		allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id });
+	}
+	res.send(allItemNames);
+}
 
 
 // export const viewRatings = async (req: any, res: Response, next: NextFunction) => {

@@ -7,6 +7,7 @@ export const Authorize = () => {
     return (req: any, res: Response, next: NextFunction) => {
         console.log("Authorizing...")
         const role = req.user.role;
+        console.log(role);
         const url_role = req.url.split('/')[1];
         // console.log(role, url_role);
         if (role === url_role) {

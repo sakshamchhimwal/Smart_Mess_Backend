@@ -6,10 +6,10 @@ import User_Schema from "../models/user";
 import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
 import feedback from "../models/feedback";
 import menuTable from "../models/menuTable";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import notifications from "../models/notifications";
 import mealItem from "../models/mealItem";
+import foodItemRatings from "../models/foodItemRatings";
+import { getItemRatings } from "./admin.controller";
+import mongoose from "mongoose";
 
 // export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
@@ -85,10 +85,10 @@ export const userTimeTable = async (req: any, res: Response, next: NextFunction)
 }
 
 
-export const userDetails = (req: any, res: Response, next: NextFunction) => {
+export const userDetails = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
 	try {
-		let currUser: userResult = <userResult>(<unknown>user.findOne({ Email: data.email }));
+		let currUser: userResult = await <userResult>(<unknown>user.findOne({ Email: data.email }));
 		if (!currUser) {
 			res.status(404).send("User Not Found");
 		} else {
@@ -99,6 +99,42 @@ export const userDetails = (req: any, res: Response, next: NextFunction) => {
 		console.log(error);
 	}
 };
+
+
+const __initItemRating = async (mess: any, foodItem: string) => {
+	await foodItemRatings.create({
+		Mess: new mongoose.Types.ObjectId(mess),
+		FoodItem: new mongoose.Types.ObjectId(foodItem)
+	});
+}
+
+export const giveRating = async (req: any, res: Response) => {
+	let data = req.user;
+	try {
+		let currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
+			return res.status(404).send("User Not Found");
+		} else {
+			let foodId = req.body.foodId;
+			let eatingMess = currUser.Eating_Mess?._id;
+			let rating = req.body.rating;
+			let currItemRating = await foodItemRatings.findOne({ FoodItem: foodId, Mess: eatingMess });
+			if (!currItemRating) {
+				await __initItemRating(eatingMess!, foodId);
+			}
+			currItemRating = await foodItemRatings.findOne({ FoodItem: foodId, Mess: eatingMess });
+			console.log(currItemRating);
+			let currRating = currItemRating?.Rating;
+			let currNumReviewes = currItemRating?.NumberOfReviews;
+			let newRating = ((currRating! * currNumReviewes!) + rating) / (currNumReviewes! + 1);
+			await foodItemRatings.findOneAndUpdate({ FoodItem: foodId, Mess: eatingMess }, { Rating: newRating, NumberOfReviews: currNumReviewes! + 1 });
+			return res.send("Updated").status(200);
+		}
+	} catch (err) {
+		console.log(err);
+		return res.send("Unexpected error occured").status(501);
+	}
+}
 
 // export const userNotifications = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
@@ -118,38 +154,3 @@ export const userDetails = (req: any, res: Response, next: NextFunction) => {
 // };
 //
 
-
-// export const createUser = async (req: Request, res: Response, next: NextFunction) => {
-// 	try {
-// 		let currUser = await user.findOne({ Email: req.body.Email });
-// 		if (currUser) {
-// 			res.status(400);
-// 			res.send({ error: "User Already Exists" });
-// 		} else {
-// 			const salt = await bcrypt.genSalt(10);
-// 			const secPass = await bcrypt.hash(req.body.pass, salt);
-// 			let newUser = await User_Schema.create({
-// 				Username: req.body.Username,
-// 				Password: secPass,
-// 				Email: req.body.Email,
-// 				Phone_Number: req.body.Phone_Number,
-// 				Role: req.body.Role,
-// 				First_Name: req.body.First_Name,
-// 				Last_Name: req.body.Last_Name,
-// 				Last_Login: Date.now(),
-// 			});
-// 			const data: JWTLoadData = {
-// 				user: {
-// 					email: newUser.Email,
-// 					role: newUser.Role!,
-// 					time: Date.now(),
-// 				},
-// 			};
-// 			const authToken = jwt.sign(data, process.env.JWT_KEY!);
-// 			res.send({ authToken });
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 		res.status(500).send("Some Error Occured");
-// 	}
-// };

@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
+
+
 const menu_table = new Schema({
   Day: {
     type: String,
