@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 
 const itemRatings = new Schema({
-    Mess: Schema.Types.ObjectId,
+
     FoodItem: Schema.Types.ObjectId,
     Rating: {
         type: Number,
