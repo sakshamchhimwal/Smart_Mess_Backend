@@ -12,6 +12,7 @@ const notificationToken = new Schema({
     },
     Platform: {
         type: String, //android or ios or web
+        enum: ["android", "ios", "web"],
         required: true,
     },
 });
