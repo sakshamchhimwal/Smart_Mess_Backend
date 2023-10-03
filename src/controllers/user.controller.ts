@@ -1,12 +1,12 @@
 import user from "../models/user";
 import actualFeedback from "../models/actualFeedback";
+import feedbackForm from "../models/feedbackForm";
 import notificationToken from "../models/notifications";
 import notifications from "../models/notifications";
 import { CustomRequest } from "../Interface/interfaces";
 import express, { Request, Response, NextFunction } from "express";
 import User_Schema from "../models/user";
 import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
-import feedback from "../models/actualFeedback";
 import menuTable from "../models/menuTable";
 import mealItem from "../models/mealItem";
 import foodItemRatings from "../models/foodItemRatings";
@@ -147,43 +147,67 @@ export const webAddNotificationTokenHandler = async (req: Request, res: Response
         return res.status(500).send("Some Error Occured");
     }
 };
+// const feedbackForm = new Schema({
+//     Title: {
+//         type: String,
+//         required: true,
+//     },
+//     Description: String,
+//     FormStartDate: {
+//         type: Date,
+//         required: true,
+//     },
+//     FormEndDate: {
+//         type: Date,
+//         required: true,
+//     },
+// });
 
-// export const getAllNotifications = async (req: CustomRequest | Request, res: Response) => {
-//     try {
-//         //if user in req then extact email from user
-//         const email = ('user' in req) ? req.user.email : null;
-//         const user: any = await User.findOne({ Email: email });
-//         if (!user) console.log(user._id)
-//         const notifications = await notification.find();
-//         let response: any = [];
-//         notifications.forEach((notification) => {
-//             //push notification to response only with field read: true if user has read the notification and false otherwise
-//             if (notification.readBy.includes(user._id)) {
-//                 response.push({
-//                     _id: notification._id,
-//                     Title: notification.Title,
-//                     Message: notification.Message,
-//                     Date: notification.Date,
-//                     read: true
-//                 })
-//             }
-//             else {
-//                 response.push({
-//                     _id: notification._id,
-//                     Title: notification.Title,
-//                     Message: notification.Message,
-//                     Date: notification.Date,
-//                     read: false
-//                 })
-//             }
-//         })
-//         //jsonify response
-//         return res.status(200).json(response);
-//     } catch (err) {
-//         console.log(err);
-//         return res.status(500).send("Some Error Occured");
-//     }
-// };
+export const getAllNotifications = async (req: any, res: Response) => {
+    try {
+        const currUser: any = await user.findOne({ Email: req.user.email });
+        const allNotifications = await notifications.find();
+        
+        const announcementResponse: any = allNotifications.map(notification => ({
+            _id: notification._id,
+            Title: notification.Title,
+            Message: notification.Message,
+            Date: notification.Date,
+            Attachment: notification.Attachment,
+            read: notification.readBy.includes(currUser._id),
+			messageType: "announcement",
+			sortParam: notification.Date
+        }));
+		const allFeedbacks = await feedbackForm.find();
+		//first check whether the user has submitted the feedback or not
+		//if yes then don't show the feedback form
+		//also check whether the feedback form is active or not
+		//the feedback form is active if the current date is between the start and end date
+		let feedbackResponse: any = await Promise.all(allFeedbacks.map(async (feedback) => {
+			if(Date.now()>feedback.FormEndDate.getTime()) return null;
+			if(await actualFeedback.findOne({Email: currUser.Email, FormID: feedback._id})) return null;
+			return {
+				_id: feedback._id,
+				Title: feedback.Title,
+				Description: feedback.Description,
+				FormStartDate: feedback.FormStartDate,
+				FormEndDate: feedback.FormEndDate,
+				messageType: "feedback",
+				sortParam: feedback.FormStartDate
+			};
+		}));
+		const response = announcementResponse.concat(feedbackResponse);
+		response.sort((a: any, b: any) => {
+			return b.sortParam - a.sortParam;
+		});
+		return res.status(200).send(response);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send("Some Error Occurred");
+    }
+};
+
+
 
 export const makeRead = async (req: any, res: Response) => {
     try {

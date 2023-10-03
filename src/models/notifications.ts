@@ -15,6 +15,10 @@ const notification = new Schema({
     type: Date,
     required: true,
   },
+  Attachment: {
+    type: String, //url of the attachement
+    default: "",
+  },
   // Mess: {    //we will add this later if we have mutliple messes
   //   type: mess,
   //   required: true,
