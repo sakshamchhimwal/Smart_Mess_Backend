@@ -4,14 +4,16 @@ const router = express.Router();
 // import { Authenticate } from "../middlewares/Authenticate";
 // import { Authorize } from "../middlewares/Authorize";
 import {
-	createNewFoodItem, addTimeTable,
-	makeAnnouncements, floatFeedbackForm, deleteTimeTableHandler, managerTimeTable, getAllFoodItems, getItemRating,
-	
+	createNewFoodItem, addTimeTable, makeAnnouncements, floatFeedbackForm, getAllFeedbackForms, getFeedbackFormSubmissions,
+	deleteTimeTableHandler, managerTimeTable, getAllFoodItems, getItemRating,
+
 } from "../controllers/manager.controller";
 
 
 router.post("/dashboard/makeAnnouncement", makeAnnouncements);
 router.post("/dashboard/floatFeedbackForm", floatFeedbackForm);
+router.get("/dashboard/allFeedbackForms", getAllFeedbackForms);
+router.get("/dashboard/feedbackFormSubmissions/:formID", getFeedbackFormSubmissions);
 router.put("/dashboard/createFoodItem", createNewFoodItem);
 router.patch("/dashboard/addTimeTable", addTimeTable);
 router.delete("/dashboard/deleteTimeTable", deleteTimeTableHandler);

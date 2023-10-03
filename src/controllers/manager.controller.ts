@@ -11,6 +11,7 @@ import mealItem from "../models/mealItem";
 import menuTable from "../models/menuTable";
 import mongoose, { ObjectId } from "mongoose";
 import foodItemRatings from "../models/foodItemRatings";
+import actualFeedback from "../models/actualFeedback";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 import mess from "../models/mess";
 // import user from "../models/user";
@@ -190,6 +191,7 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 	}
 }
 
+
 // const feedbackForm = new Schema({
 //     Title: {
 //         type: String,
@@ -209,7 +211,23 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 export const getAllFeedbackForms = async (req: any, res: Response) => {
 	try {
 		const allForms = await feedbackForm.find();
+		//sorting in descending order of start date
+		allForms.sort((a, b) => {
+			return b.FormStartDate.getTime() - a.FormStartDate.getTime();
+		});
 		return res.status(200).send(allForms);
+	}catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
+}
+
+export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
+	try {
+		const formId = req.params.formID;
+		const allSubmissions = await actualFeedback.find({FormID: formId});
+		//yet to decide the details to be viewed by manager is should contain the user details or not
+		return res.status(200).send(allSubmissions);
 	}catch (err) {
 		console.log(err);
 		return res.status(500).send("Some Error Occured");

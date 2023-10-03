@@ -1,7 +1,8 @@
 import user from "../models/user";
 import actualFeedback from "../models/actualFeedback";
-
-require("dotenv").config();
+import notificationToken from "../models/notifications";
+import notifications from "../models/notifications";
+import { CustomRequest } from "../Interface/interfaces";
 import express, { Request, Response, NextFunction } from "express";
 import User_Schema from "../models/user";
 import { GoogleUserResult, JWTLoadData, userResult } from "../Interface/interfaces";
@@ -123,73 +124,6 @@ export const giveRating = async (req: any, res: Response) => {
 	}
 }
 
-
-
-// export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
-//   let data = req.user;
-//   try {
-//     let user: userResult = <userResult>(<unknown>User_Schema.findOne({ Email: data.email }));
-//     if (!user) {
-//       res.status(404).send("User Not Found");
-//     } else {
-//       let userId = user._id;
-//       let userFeedbacks = feedback.find({ UserID: userId });
-//       res.send(userFeedbacks).status(200);
-//     }
-//   } catch (error) {
-//     res.status(501).send("Some Error Occured");
-//     console.log(error);
-//   }
-// };
-
-
-
-// const feedback = new Schema({
-// 	Email: {  //user who gave the feedback
-// 	  type: String,
-// 	  required: true,
-// 	},
-// 	FormID : {
-// 	  type: Schema.Types.ObjectId,
-// 	  ref: "FeedbackForm",
-// 	  required: true,
-// 	},
-// 	BreakfastRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	LunchRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	DinnerRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	SnacksRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	Feedback: {
-// 	  type: String,
-// 	  required: true,
-// 	},
-// 	MessServiceRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	HygieneRating: {
-// 	  type: Number,
-// 	  required: true,
-// 	},
-// 	// Mess: {  //we will add this later if we have mutliple messes
-// 	//   type: Schema.Types.ObjectId,
-// 	//   ref: "mess",
-// 	//   required: true,
-// 	// },
-//   });
-
-
 export const getLatestUpdates = async (req: any, res: Response) => {
 	try{
 		const currUser = await user.findOne({Email: req.user.email});
@@ -200,6 +134,74 @@ export const getLatestUpdates = async (req: any, res: Response) => {
 	}
 };
 
+
+export const webAddNotificationTokenHandler = async (req: Request, res: Response) => {
+    const { notification_token, Email } = req.body;
+    if (!notification_token || !Email) return res.status(400).send("Invalid Request");
+    try {
+        //check if token already exists with email and platform - web if yes then update it else create new
+        const token = await notificationToken.findOneAndUpdate({ Email: Email, Platform: "web" }, { Token: notification_token }, { new: true, upsert: true });
+        return res.status(200).send(token);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send("Some Error Occured");
+    }
+};
+
+// export const getAllNotifications = async (req: CustomRequest | Request, res: Response) => {
+//     try {
+//         //if user in req then extact email from user
+//         const email = ('user' in req) ? req.user.email : null;
+//         const user: any = await User.findOne({ Email: email });
+//         if (!user) console.log(user._id)
+//         const notifications = await notification.find();
+//         let response: any = [];
+//         notifications.forEach((notification) => {
+//             //push notification to response only with field read: true if user has read the notification and false otherwise
+//             if (notification.readBy.includes(user._id)) {
+//                 response.push({
+//                     _id: notification._id,
+//                     Title: notification.Title,
+//                     Message: notification.Message,
+//                     Date: notification.Date,
+//                     read: true
+//                 })
+//             }
+//             else {
+//                 response.push({
+//                     _id: notification._id,
+//                     Title: notification.Title,
+//                     Message: notification.Message,
+//                     Date: notification.Date,
+//                     read: false
+//                 })
+//             }
+//         })
+//         //jsonify response
+//         return res.status(200).json(response);
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(500).send("Some Error Occured");
+//     }
+// };
+
+export const makeRead = async (req: any, res: Response) => {
+    try {
+        // const email = ('user' in req) ? req.user.email : null;
+        const currUser: any = await user.findOne({ Email: req.user.email });
+        const notifId = req.body.notifId;
+        const notif = await notifications.findOne({ _id: notifId });
+        if (notif) {
+            await notifications.findByIdAndUpdate(notif._id, { $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] } });
+            return res.send("Read").status(200);
+        } else {
+            return res.send("Unexpected Error").status(404);
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(501).send("Some error occured");
+    }
+}
 
 export const submitFeedback = async (req: any, res: Response) => {
 	try{

@@ -10,7 +10,6 @@ import path from "path";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
-import notificationRouter from "./routes/notificationRoutes";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/userRoutes"
 import { Authenticate } from "./middlewares/Authenticate";
@@ -43,7 +42,6 @@ app.use("/auth", authRouter);
 app.use("/guest", guestRouter);
 
 app.use(Authenticate()); //all the routes below this will be authenticated
-app.use("/notification", notificationRouter);
 
 app.use(Authorize()); //only the below routes have to be authorized
 app.use("/user", userRouter);
