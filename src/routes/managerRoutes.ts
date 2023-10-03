@@ -5,15 +5,17 @@ const router = express.Router();
 // import { Authorize } from "../middlewares/Authorize";
 import {
 	createNewFoodItem, addTimeTable,
-	makeAnnouncements, deleteTimeTableHandler, managerTimeTable, getAllFoodItems, getItemRating
+	makeAnnouncements, floatFeedbackForm, deleteTimeTableHandler, managerTimeTable, getAllFoodItems, getItemRating,
+	
 } from "../controllers/manager.controller";
 
 
 router.post("/dashboard/makeAnnouncement", makeAnnouncements);
+router.post("/dashboard/floatFeedbackForm", floatFeedbackForm);
 router.put("/dashboard/createFoodItem", createNewFoodItem);
 router.patch("/dashboard/addTimeTable", addTimeTable);
 router.delete("/dashboard/deleteTimeTable", deleteTimeTableHandler);
-router.get("/dashboard/timeTable", managerTimeTable)
+router.get("/dashboard/timeTable", managerTimeTable);
 router.get("/dashboard/allFoodItems", getAllFoodItems);
 router.post("/dashboard/getItemRating", getItemRating);
 // router.get("/dashboard/allRatings", Authenticate, Authorize, viewRatings);

@@ -5,6 +5,7 @@ import { NextFunction, Response } from "express";
 import { sendNotification } from "../config/firebaseWeb";
 import notificationToken from "../models/notificationToken";
 import notifications from "../models/notifications";
+import feedbackForm from "../models/feedbackForm";
 import user from "../models/user";
 import mealItem from "../models/mealItem";
 import menuTable from "../models/menuTable";
@@ -146,6 +147,75 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 	}
 };
 
+// const feedbackForm = new Schema({
+//     Title: {
+//         type: String,
+//         required: true,
+//     },
+//     Description: String,
+//     FormStartDate: {
+//         type: Date,
+//         required: true,
+//     },
+//     FormEndDate: {
+//         type: Date,
+//         required: true,
+//     },
+// });
+
+
+export const floatFeedbackForm = async (req: any, res: Response) => {
+	const { title, description} = req.body;
+	if (!title) return res.status(400).send("Invalid Request");
+	try {
+		//add to notification collection
+		const startDate = new Date();
+		const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+		await feedbackForm.create({
+			Title: title,
+			Description: description,
+			FormStartDate: startDate,
+			FormEndDate: endDate
+		});
+		const tokens = await notificationToken.find();
+		const tokenList = tokens.map((token) => token.Token);
+		//run a loop to send notification to all tokens
+		for (let i = 0; i < tokenList.length; i++) {
+			await sendNotification(tokenList[i], title, description);
+		}
+		return res.status(200).send("Notification Sent");
+	}catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
+}
+
+// const feedbackForm = new Schema({
+//     Title: {
+//         type: String,
+//         required: true,
+//     },
+//     Description: String,
+//     FormStartDate: {
+//         type: Date,
+//         required: true,
+//     },
+//     FormEndDate: {
+//         type: Date,
+//         required: true,
+//     },
+// });
+
+export const getAllFeedbackForms = async (req: any, res: Response) => {
+	try {
+		const allForms = await feedbackForm.find();
+		return res.status(200).send(allForms);
+	}catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
+}
+
 export const getAllFoodItems = async (req: any, res: Response) => {
 	const foodItems = await mealItem.find();
 	let allItemNames = [];
@@ -256,3 +326,6 @@ export const getItemRating = async (req: any, res: Response) => {
 //     console.log(error);
 //   }
 // };
+
+
+

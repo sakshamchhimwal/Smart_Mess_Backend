@@ -1,4 +1,5 @@
 import user from "../models/user";
+import actualFeedback from "../models/actualFeedback";
 
 require("dotenv").config();
 import express, { Request, Response, NextFunction } from "express";
@@ -11,22 +12,6 @@ import foodItemRatings from "../models/foodItemRatings";
 import { getItemRatings } from "./admin.controller";
 import mongoose from "mongoose";
 
-// export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
-//   let data = req.user;
-//   try {
-//     let user: userResult = <userResult>(<unknown>User_Schema.findOne({ Email: data.email }));
-//     if (!user) {
-//       res.status(404).send("User Not Found");
-//     } else {
-//       let userId = user._id;
-//       let userFeedbacks = feedback.find({ UserID: userId });
-//       res.send(userFeedbacks).status(200);
-//     }
-//   } catch (error) {
-//     res.status(501).send("Some Error Occured");
-//     console.log(error);
-//   }
-// };
 
 export const timeTableHandler = (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
@@ -138,21 +123,102 @@ export const giveRating = async (req: any, res: Response) => {
 	}
 }
 
-// export const userNotifications = (req: any, res: Response, next: NextFunction) => {
+
+
+// export const feedbackHandler = (req: any, res: Response, next: NextFunction) => {
 //   let data = req.user;
 //   try {
 //     let user: userResult = <userResult>(<unknown>User_Schema.findOne({ Email: data.email }));
 //     if (!user) {
 //       res.status(404).send("User Not Found");
 //     } else {
-//       let userMess = user.Eating_Mess;
-//       let allNotifs = notifications.find({ Mess: userMess });
-//       res.send(allNotifs).status(200);
+//       let userId = user._id;
+//       let userFeedbacks = feedback.find({ UserID: userId });
+//       res.send(userFeedbacks).status(200);
 //     }
 //   } catch (error) {
 //     res.status(501).send("Some Error Occured");
 //     console.log(error);
 //   }
 // };
-//
 
+
+
+// const feedback = new Schema({
+// 	Email: {  //user who gave the feedback
+// 	  type: String,
+// 	  required: true,
+// 	},
+// 	FormID : {
+// 	  type: Schema.Types.ObjectId,
+// 	  ref: "FeedbackForm",
+// 	  required: true,
+// 	},
+// 	BreakfastRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	LunchRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	DinnerRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	SnacksRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	Feedback: {
+// 	  type: String,
+// 	  required: true,
+// 	},
+// 	MessServiceRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	HygieneRating: {
+// 	  type: Number,
+// 	  required: true,
+// 	},
+// 	// Mess: {  //we will add this later if we have mutliple messes
+// 	//   type: Schema.Types.ObjectId,
+// 	//   ref: "mess",
+// 	//   required: true,
+// 	// },
+//   });
+
+
+export const getLatestUpdates = async (req: any, res: Response) => {
+	try{
+		const currUser = await user.findOne({Email: req.user.email});
+		//yet to be implemented
+	}catch(err){
+		console.log(err);
+		res.status(501).send("Some Error Occured");
+	}
+};
+
+
+export const submitFeedback = async (req: any, res: Response) => {
+	try{
+		const currUser = await user.findOne({Email: req.user.email});
+		const {FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Feedback, MessServiceRating, HygieneRating} = req.body;
+		await actualFeedback.create({
+			Email: currUser?.Email,
+			FormID: FormID,
+			BreakfastRating: BreakfastRating,
+			LunchRating: LunchRating,
+			DinnerRating: DinnerRating,
+			SnacksRating: SnacksRating,
+			Feedback: Feedback,
+			MessServiceRating: MessServiceRating,
+			HygieneRating: HygieneRating
+		});
+		res.send("Feedback Submitted").status(200);
+	}catch(err){
+		console.log(err);
+		res.status(501).send("Some Error Occured");
+	}
+}

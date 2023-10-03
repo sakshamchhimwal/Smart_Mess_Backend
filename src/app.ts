@@ -11,7 +11,6 @@ import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
 import notificationRouter from "./routes/notificationRoutes";
-import feedbackRouter from "./routes/feedbackRoutes";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/userRoutes"
 import { Authenticate } from "./middlewares/Authenticate";
@@ -29,6 +28,7 @@ var app = express();
 //connect to database
 connectDB();
 
+
 app.use(cors());
 app.use(cookieParser());
 app.use(logger("dev"));
@@ -44,7 +44,6 @@ app.use("/guest", guestRouter);
 
 app.use(Authenticate()); //all the routes below this will be authenticated
 app.use("/notification", notificationRouter);
-app.use("/feedback", feedbackRouter);
 
 app.use(Authorize()); //only the below routes have to be authorized
 app.use("/user", userRouter);
