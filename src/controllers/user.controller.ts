@@ -147,21 +147,6 @@ export const webAddNotificationTokenHandler = async (req: Request, res: Response
         return res.status(500).send("Some Error Occured");
     }
 };
-// const feedbackForm = new Schema({
-//     Title: {
-//         type: String,
-//         required: true,
-//     },
-//     Description: String,
-//     FormStartDate: {
-//         type: Date,
-//         required: true,
-//     },
-//     FormEndDate: {
-//         type: Date,
-//         required: true,
-//     },
-// });
 
 export const getAllNotifications = async (req: any, res: Response) => {
     try {
