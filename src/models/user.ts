@@ -1,4 +1,4 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import Mess from "./mess";
 
 const User = new Schema({
@@ -10,6 +10,7 @@ const User = new Schema({
 		type: String,
 		unique: true,
 		required: true,
+		indexedDB: true,
 	},
 	Phone_Number: {
 		type: Number,
@@ -18,6 +19,8 @@ const User = new Schema({
 	},
 	Role: {
 		type: String, //"user"/"admin"/"manager"/"guest"
+		enum: ["user", "admin", "manager", "guest"],
+		default: "user",
 	},
 	First_Name: {
 		type: String,
@@ -36,7 +39,7 @@ const User = new Schema({
 	Eating_Mess: {
 		type: Schema.Types.ObjectId,
 		ref: "Mess",
-		required: true,
+		// required: true,
 	},
 });
 

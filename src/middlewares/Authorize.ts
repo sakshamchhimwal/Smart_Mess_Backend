@@ -1,19 +1,31 @@
-import { JWTLoadData, UserData } from "../Interface/interfaces";
-import { verify } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
-import { CustomRequest } from "../Interface/interfaces";
+import { Response, NextFunction } from "express";
 
-export const Authorize = (req: CustomRequest | Request, res: Response, next: NextFunction) => {
-    const role= ('user' in req) ? req.user.role : null;
-    const url_role = req.url.split('/')[1];
-    if (role === url_role) {
-        next();
+
+export const Authorize = () => {
+    return (req: any, res: Response, next: NextFunction) => {
+        console.log("Authorizing...")
+        const role = req.user.role;
+        console.log(role);
+        const url_role = req.url.split('/')[1];
+        // priority "admin">"manager">"user"="guest"
+        try {
+            if (role === "admin") {
+                next();
+            } else if (role === "manager" && url_role !== "admin") {
+                next();
+            } else if (role === "user" && url_role === "user") {
+                next();
+            } else if (role === "guest" && url_role === "guest") {
+                next();
+            } else {
+                res.status(401).json({
+                    message: "You are not authorized to access this route"
+                })
+            }
+        } catch (err) {
+            res.status(401).json({
+                message: "You are not authorized to access this route"
+            })
+        }
     }
-    else {
-        res.status(401).send("Unauthorized Access");
-    }
-};
-
-
-
-
+}

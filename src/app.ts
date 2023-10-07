@@ -5,16 +5,15 @@ import createHttpError, { CreateHttpError } from "http-errors";
 import express, { Express, Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
-import { defaultRouter } from "./routes";
+// import { defaultRouter } from "./routes";
 // import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
-import notificationRouter from "./routes/notificationRoutes";
 import cookieParser from "cookie-parser";
+import userRouter from "./routes/userRoutes"
 import { Authenticate } from "./middlewares/Authenticate";
 import { Authorize } from "./middlewares/Authorize";
-
 import connectDB from "./config/connectDB";
 import notifications from "./models/notifications";
 
@@ -22,11 +21,12 @@ import notifications from "./models/notifications";
 var app = express();
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+// app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "jade");
 
 //connect to database
 connectDB();
+
 
 app.use(cors());
 app.use(cookieParser());
@@ -39,12 +39,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // app.use("/", defaultRouter);
 app.use("/auth", authRouter);
-app.use("/guest",guestRouter);
-app.use("/manager",managerRoutes);
-app.use("/notification",notificationRouter)
-// app.use(Authenticate);
-// app.use(Authorize);
-// app.use("/user", userRouter);
+app.use(Authenticate()); //all the routes below this will be authenticated
+app.use(Authorize()); //only the below routes have to be authorized
+app.use("/guest", guestRouter);
+app.use("/user", userRouter);
+app.use("/manager", managerRoutes);
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
