@@ -125,10 +125,10 @@ export const giveRating = async (req: any, res: Response) => {
 }
 
 export const getLatestUpdates = async (req: any, res: Response) => {
-	try{
-		const currUser = await user.findOne({Email: req.user.email});
+	try {
+		const currUser = await user.findOne({ Email: req.user.email });
 		//yet to be implemented
-	}catch(err){
+	} catch (err) {
 		console.log(err);
 		res.status(501).send("Some Error Occured");
 	}
@@ -136,48 +136,48 @@ export const getLatestUpdates = async (req: any, res: Response) => {
 
 
 export const webAddNotificationTokenHandler = async (req: Request, res: Response) => {
-    const { notification_token, Email } = req.body;
-    if (!notification_token || !Email) return res.status(400).send("Invalid Request");
-    try {
-        //check if token already exists with email and platform - web if yes then update it else create new
-        const token = await notificationToken.findOneAndUpdate({ Email: Email, Platform: "web" }, { Token: notification_token }, { new: true, upsert: true });
-        return res.status(200).send(token);
-    } catch (err) {
-        console.log(err);
-        return res.status(500).send("Some Error Occured");
-    }
+	const { notification_token, Email } = req.body;
+	if (!notification_token || !Email) return res.status(400).send("Invalid Request");
+	try {
+		//check if token already exists with email and platform - web if yes then update it else create new
+		const token = await notificationToken.findOneAndUpdate({ Email: Email, Platform: "web" }, { Token: notification_token }, { new: true, upsert: true });
+		return res.status(200).send(token);
+	} catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occured");
+	}
 };
 
 export const getAllNotifications = async (req: any, res: Response) => {
-    try {
-        const currUser: any = await user.findOne({ Email: req.user.email });
-        const allNotifications = await notifications.find();
-        
-        const announcementResponse: any = allNotifications.map(notification => ({
-            _id: notification._id,
-            Title: notification.Title,
-            Message: notification.Message,
-            Date: notification.Date,
-            Attachment: notification.Attachment,
-            read: notification.readBy.includes(currUser._id),
+	try {
+		const currUser: any = await user.findOne({ Email: req.user.email });
+		const allNotifications = await notifications.find();
+
+		const announcementResponse: any = allNotifications.map(notification => ({
+			_id: notification._id,
+			Title: notification.Title,
+			Message: notification.Message,
+			Date: notification.Date,
+			Attachment: notification.Attachment,
+			read: notification.readBy.includes(currUser._id),
 			messageType: "announcement",
 			sortParam: notification.Date
-        }));
+		}));
 		const allFeedbacks = await feedbackForm.find();
 		//first check whether the user has submitted the feedback or not
 		//if yes then don't show the feedback form
 		//also check whether the feedback form is active or not
 		//the feedback form is active if the current date is between the start and end date
 		let feedbackResponse: any = await Promise.all(allFeedbacks.map(async (feedback) => {
-			if(Date.now()>feedback.FormEndDate.getTime()) return null;
-			if(await actualFeedback.findOne({Email: currUser.Email, FormID: feedback._id})) return null;
+			if (Date.now() > feedback.FormEndDate.getTime()) return null;
+			if (await actualFeedback.findOne({ Email: currUser.Email, FormID: feedback._id })) return null;
 			return {
 				_id: feedback._id,
 				Title: feedback.Title,
 				Description: feedback.Description,
 				FormStartDate: feedback.FormStartDate,
 				FormEndDate: feedback.FormEndDate,
-				messageType: "feedback",
+				messageType: "feedback", // render
 				sortParam: feedback.FormStartDate
 			};
 		}));
@@ -186,36 +186,36 @@ export const getAllNotifications = async (req: any, res: Response) => {
 			return b.sortParam - a.sortParam;
 		});
 		return res.status(200).send(response);
-    } catch (err) {
-        console.log(err);
-        return res.status(500).send("Some Error Occurred");
-    }
+	} catch (err) {
+		console.log(err);
+		return res.status(500).send("Some Error Occurred");
+	}
 };
 
 
 
 export const makeRead = async (req: any, res: Response) => {
-    try {
-        // const email = ('user' in req) ? req.user.email : null;
-        const currUser: any = await user.findOne({ Email: req.user.email });
-        const notifId = req.body.notifId;
-        const notif = await notifications.findOne({ _id: notifId });
-        if (notif) {
-            await notifications.findByIdAndUpdate(notif._id, { $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] } });
-            return res.send("Read").status(200);
-        } else {
-            return res.send("Unexpected Error").status(404);
-        }
-    } catch (err) {
-        console.log(err);
-        return res.status(501).send("Some error occured");
-    }
+	try {
+		// const email = ('user' in req) ? req.user.email : null;
+		const currUser: any = await user.findOne({ Email: req.user.email });
+		const notifId = req.body.notifId;
+		const notif = await notifications.findOne({ _id: notifId });
+		if (notif) {
+			await notifications.findByIdAndUpdate(notif._id, { $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] } });
+			return res.send("Read").status(200);
+		} else {
+			return res.send("Unexpected Error").status(404);
+		}
+	} catch (err) {
+		console.log(err);
+		return res.status(501).send("Some error occured");
+	}
 }
 
 export const submitFeedback = async (req: any, res: Response) => {
-	try{
-		const currUser = await user.findOne({Email: req.user.email});
-		const {FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Feedback, MessServiceRating, HygieneRating} = req.body;
+	try {
+		const currUser = await user.findOne({ Email: req.user.email });
+		const { FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Feedback, MessServiceRating, HygieneRating } = req.body;
 		await actualFeedback.create({
 			Email: currUser?.Email,
 			FormID: FormID,
@@ -228,7 +228,7 @@ export const submitFeedback = async (req: any, res: Response) => {
 			HygieneRating: HygieneRating
 		});
 		res.send("Feedback Submitted").status(200);
-	}catch(err){
+	} catch (err) {
 		console.log(err);
 		res.status(501).send("Some Error Occured");
 	}
