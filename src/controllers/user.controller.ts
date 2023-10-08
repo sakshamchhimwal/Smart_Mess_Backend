@@ -1,7 +1,7 @@
 import user from "../models/user";
 import actualFeedback from "../models/actualFeedback";
 import feedbackForm from "../models/feedbackForm";
-import notificationToken from "../models/notifications";
+import notificationToken from "../models/notificationToken";
 import notifications from "../models/notifications";
 import { CustomRequest } from "../Interface/interfaces";
 import express, { Request, Response, NextFunction } from "express";
@@ -135,9 +135,10 @@ export const getLatestUpdates = async (req: any, res: Response) => {
 };
 
 
-export const webAddNotificationTokenHandler = async (req: Request, res: Response) => {
-    const { notification_token, Email } = req.body;
-    if (!notification_token || !Email) return res.status(400).send("Invalid Request");
+export const webAddNotificationTokenHandler = async (req: any, res: Response) => {
+    const { notification_token } = req.body;
+	const Email = req.user.email;
+    if (!notification_token ) return res.status(400).send("Invalid Request");
     try {
         //check if token already exists with email and platform - web if yes then update it else create new
         const token = await notificationToken.findOneAndUpdate({ Email: Email, Platform: "web" }, { Token: notification_token }, { new: true, upsert: true });
@@ -214,8 +215,10 @@ export const makeRead = async (req: any, res: Response) => {
 
 export const submitFeedback = async (req: any, res: Response) => {
 	try{
+		console.log(req.body);
+		return res.send("Feedback Submitted").status(200);
 		const currUser = await user.findOne({Email: req.user.email});
-		const {FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Feedback, MessServiceRating, HygieneRating} = req.body;
+		const {FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Comments, MessServiceRating, HygieneRating} = req.body;
 		await actualFeedback.create({
 			Email: currUser?.Email,
 			FormID: FormID,
@@ -223,7 +226,7 @@ export const submitFeedback = async (req: any, res: Response) => {
 			LunchRating: LunchRating,
 			DinnerRating: DinnerRating,
 			SnacksRating: SnacksRating,
-			Feedback: Feedback,
+			Comments: Comments,
 			MessServiceRating: MessServiceRating,
 			HygieneRating: HygieneRating
 		});

@@ -29,9 +29,8 @@ const feedback = new Schema({
     type: Number,
     required: true,
   },
-  Feedback: {
+  Comments: {
     type: String,
-    required: true,
   },
   MessServiceRating: {
     type: Number,
