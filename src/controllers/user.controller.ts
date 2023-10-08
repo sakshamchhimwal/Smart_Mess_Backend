@@ -14,60 +14,74 @@ import { getItemRatings } from "./admin.controller";
 import mongoose from "mongoose";
 
 
-export const timeTableHandler = (req: any, res: Response, next: NextFunction) => {
-	let data = req.user;
-	try {
-		let currUser: userResult = <userResult>(<unknown>user.findOne({ Email: data.email }));
-		if (!currUser) {
-			res.status(404).send("User Not Found");
-		} else {
-			let eatMess = currUser.Eating_Mess;
-			let allTimeTable = menuTable.find({ Mess: eatMess });
-			res.send(200).send(allTimeTable);
-		}
-	} catch (error) {
-		res.status(501).send("Some Error Occured");
-		console.log(error);
-	}
-};
+// const getMenuItems = async (mealItems: any[]) => {
+// 	let menuItems: any[] = [];
+// 	for (let i = 0; i < mealItems.length; i++) {
+// 		let mealDetails = await mealItem.findById(mealItems[i]);
+// 		if (mealDetails) {
+// 			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
+// 		}
+// 	}
+// 	return menuItems;
+// }
 
 
-const getMenuItems = async (mealItems: any[]) => {
-	let menuItems: any[] = [];
-	for (let i = 0; i < mealItems.length; i++) {
-		let mealDetails = await mealItem.findById(mealItems[i]);
-		if (mealDetails) {
-			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
-		}
-	}
-	return menuItems;
+// const makeMenuDay = (allTimeTable: any[]) => {
+// 	let res: any[] = [];
+// 	for (let i = 0; i < allTimeTable.length; i++) {
+// 		let items = getMenuItems(allTimeTable[i]);
+// 		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
+// 	}
+// 	console.log(res)
+// 	return res;
+// }
+
+
+const getItemByID = async (itemId:any) => {
+	let eleDetails = await mealItem.findById(itemId);
+	return {
+		"Name":eleDetails?.Name,
+		"Image":eleDetails?.Image
+	};
 }
 
-
-const makeMenuDay = (allTimeTable: any[]) => {
-	let res: any[] = [];
-	for (let i = 0; i < allTimeTable.length; i++) {
-		let items = getMenuItems(allTimeTable[i]);
-		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
-	}
-	console.log(res)
-	return res;
-}
+// const makeMenuDay = (day:string,itemIDs:any[]) => {
+// 	let res: any[] = [];
+// 	itemIDs.forEach(async (itemID)=>{
+// 		let itemDet = await getItemByID(itemID);
+// 		// console.log(itemDet);
+// 		res.push(itemDet);
+// 	})
+// 	console.log(res);
+// 	return {};
+// }
 
 export const userTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
-	console.log("running")
 	try {
 		let currUser: userResult =  await <userResult>(<unknown>user.findOne({ Email: data.email }));
 		if (!currUser) {
 			res.status(404).send("User not found");
 		} else {
 			let userMess:any = currUser.Eating_Mess;
+			let ttSer = [];
 			let allTimeTable = await menuTable.find({ Mess: userMess });
-			allTimeTable.forEach(async (ele)=>{
-				console.log(ele.Meal_Items);
-			})
-			res.send(allTimeTable);
+			for (let index = 0; index < allTimeTable.length; index++) {
+				const element = allTimeTable[index];
+				let eleDets = [];
+				for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
+					const ele2 = element.Meal_Items[idx2];
+					let eleDetails = await mealItem.findById(ele2);
+					eleDets.push(eleDetails);
+				}
+				ttSer.push({
+					"id":allTimeTable[index].id,
+					"Day":allTimeTable[index].Day,
+					"Type":allTimeTable[index].MealType,
+					"Items":eleDets
+				})
+			}
+			return res.send(ttSer);
 		}
 	} catch (e) {
 		res.send("Unexpected Error").status(501);
