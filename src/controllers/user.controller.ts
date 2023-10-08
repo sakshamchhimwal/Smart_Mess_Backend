@@ -50,19 +50,24 @@ const makeMenuDay = (allTimeTable: any[]) => {
 		let items = getMenuItems(allTimeTable[i]);
 		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
 	}
+	console.log(res)
 	return res;
 }
 
 export const userTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
+	console.log("running")
 	try {
-		let currUser: userResult = await <userResult>(<unknown>user.findOne({ Email: data.email }));
+		let currUser: userResult =  await <userResult>(<unknown>user.findOne({ Email: data.email }));
 		if (!currUser) {
 			res.status(404).send("User not found");
 		} else {
-			let userMess = currUser.Eating_Mess;
+			let userMess:any = currUser.Eating_Mess;
 			let allTimeTable = await menuTable.find({ Mess: userMess });
-			return makeMenuDay(allTimeTable);
+			allTimeTable.forEach(async (ele)=>{
+				console.log(ele.Meal_Items);
+			})
+			res.send(allTimeTable);
 		}
 	} catch (e) {
 		res.send("Unexpected Error").status(501);

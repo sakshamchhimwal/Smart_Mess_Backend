@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-
+import process from 'process';
 const config = {
     "type": process.env.FIREBASE_TYPE,
     "project_id": process.env.FIREBASE_PROJECT_ID as string,
