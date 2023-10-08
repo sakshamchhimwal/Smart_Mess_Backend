@@ -34,14 +34,18 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(createHttpError);
-app.use(express.static(path.join(__dirname, "public")));
+//serve files of path /static
+app.use("/static", express.static(path.join(__dirname, "..", "public")));
+
 
 
 // app.use("/", defaultRouter);
 app.use("/auth", authRouter);
-app.use(Authenticate()); //all the routes below this will be authenticated
-// app.use(Authorize()); //only the below routes have to be authorized
 app.use("/guest", guestRouter);
+
+app.use(Authenticate()); //all the routes below this will be authenticated
+app.use(Authorize()); //only the below routes have to be authorized
+
 app.use("/user", userRouter);
 app.use("/manager", managerRoutes);
 
