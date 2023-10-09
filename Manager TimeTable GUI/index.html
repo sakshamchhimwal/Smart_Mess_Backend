@@ -25,6 +25,7 @@
                 optEle.appendChild(textNode);
                 selectEle.appendChild(optEle);
             });
+            return foodItems;
         }
         const addToken = async () => {
             managerToken = document.getElementById("authcode").value;
@@ -55,6 +56,62 @@
             alert("Added " + daySelVal + "->" + typeSelVal + "->" + itemSelVal);
         }
 
+        const addFoodItem = async () => {
+            const name = document.getElementById("newFoodName").value;
+            const imgLink = document.getElementById("newFoodImLink").value;
+            const catg = document.getElementById("catSel").value;
+            const data = {
+                'name': name,
+                'image': imgLink,
+                'category': catg
+            }
+            const res = await fetch("http://localhost:8000/manager/dashboard/createFoodItem", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            console.log(res);
+            alert("Added new food item: " + name);
+        }
+        const getPartItem = async () => {
+            const foodItems = await fetch("http://localhost:8000/manager/dashboard/timetable").json();
+            const day = document.getElementById("delDaySelect").value;
+            const type = document.getElementById("delTypeSelect").value;
+            const filterFoodItems = foodItems.filter((ele) => {
+                return (ele.Day === day && ele.type === type);
+            })
+            const selectEle = document.getElementById("delItemSelect");
+            filterFoodItems.forEach((ele) => {
+                const optEle = document.createElement("option");
+                optEle.setAttribute('value', ele.id);
+                const textNode = document.createTextNode(ele.Name);
+                optEle.appendChild(textNode);
+                selectEle.appendChild(optEle);
+            });
+        }
+        const del = async () => {
+            const delItemId = document.getElementById("delItemSelect").value;
+            const day = document.getElementById("delDaySelect").value;
+            const type = document.getElementById("delTypeSelect").value;
+            const data = {
+                'day': day,
+                'mealType': type,
+                'mealItem': delItemId
+            }
+            const res = await fetch("http://localhost:8000/manager/dashboard/deleteTimeTable", {
+                method: "DELETE",
+                headers: {
+                    'Authorization': 'Bearer ' + managerToken,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            console.log(res);
+            alert("Deleted");
+        }
+
     </script>
 </head>
 
@@ -62,6 +119,22 @@
     <input type="text" placeholder="Enter Auth Code" name="auth" id="authcode">
     <button id="submitToken" onclick="addToken()">Send Token</button>
     <br><br>
+    <hr>
+    <h1>Create New Food Items</h1>
+    Name of Food Item : <input type="text" id="newFoodName">
+    <br><br>
+    Image of Food Item : <input type="text" id="newFoodImLink" placeholder="Enter Image Link">
+    <br><br>
+    Category of Food Item : <select id="catSel">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+    </select>
+    <br><br>
+    <button id="makeNewFood" onclick="addFoodItem()">Add New Food Item</button>
+    <br><br>
+    <hr>
+    <h1>Add Items To Time Table</h1>
     Day: <select id="daySelect">
         <option value="Monday">Monday</option>
         <option value="Tuesday">Tuesday</option>
@@ -82,6 +155,32 @@
     Items : <select id="itemSelect"></select>
     <br><br>
     <button id="send" onclick="send()">Add</button>
+    <br><br>
+    <hr>
+    <h1>Delete Food Item</h1>
+    Day: <select id="delDaySelect">
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+        <option value="Sunday">Sunday</option>
+    </select>
+    <br><br>
+    Meal Type : <select id="delTypeSelect">
+        <option value="Breakfast">Breakfast</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Snacks">Snacks</option>
+        <option value="Dinner">Dinner</option>
+    </select>
+    <br><br>
+    <button id="send" onclick="getPartItem()">Get Food</button>
+    <br><br>
+    Items : <select id="delItemSelect"></select>
+    <br><br>
+    <button id="send" onclick="del()">Delete</button>
+    <br><br>
 </body>
 
 </html>

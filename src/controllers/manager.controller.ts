@@ -82,23 +82,36 @@ const makeMenuDay = (allTimeTable: any[]) => {
 
 export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
-	// console.log(data.email);
 	try {
-		const currUser = await user.findOne({ Email: data.email });
+		let currUser = await user.findOne({ Email: data.email });
 		if (!currUser) {
-			res.status(404).send("Manager not found");
+			res.status(404).send("User not found");
 		} else {
-			const eatingMess = currUser?.Eating_Mess?._id;
-			// console.log(eatingMess?._id);
-			const allItems = await menuTable.find({ Mess: eatingMess });
-			// console.log(allItems);
-			return res.send(makeMenuDay(allItems)).status(200);
+			let userMess: any = currUser.Eating_Mess;
+			let ttSer = [];
+			let allTimeTable = await menuTable.find({ Mess: userMess });
+			for (let index = 0; index < allTimeTable.length; index++) {
+				const element = allTimeTable[index];
+				let eleDets = [];
+				for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
+					const ele2 = element.Meal_Items[idx2];
+					let eleDetails = await mealItem.findById(ele2);
+					eleDets.push(eleDetails);
+				}
+				ttSer.push({
+					"id": allTimeTable[index].id,
+					"Day": allTimeTable[index].Day,
+					"Type": allTimeTable[index].MealType,
+					"Items": eleDets
+				})
+			}
+			return res.send(ttSer);
 		}
-	} catch (err) {
-		console.log(err);
-		res.send("Unexpected Error").status(500);
+	} catch (e) {
+		res.send("Unexpected Error").status(501);
+		console.log(e);
 	}
-};
+}
 
 export const deleteTimeTableHandler = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;

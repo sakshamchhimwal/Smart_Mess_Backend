@@ -17,7 +17,7 @@ router.get("/dashboard/feedbackFormSubmissions/:formID", getFeedbackFormSubmissi
 router.put("/dashboard/createFoodItem", createNewFoodItem);
 router.patch("/dashboard/addTimeTable", addTimeTable);
 router.delete("/dashboard/deleteTimeTable", deleteTimeTableHandler);
-router.get("/dashboard/timeTable", managerTimeTable);
+router.get("/dashboard/timetable", managerTimeTable);
 router.get("/dashboard/allFoodItems", getAllFoodItems);
 router.post("/dashboard/getItemRating", getItemRating);
 // router.get("/dashboard/allRatings", Authenticate, Authorize, viewRatings);
