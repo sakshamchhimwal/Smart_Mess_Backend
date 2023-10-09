@@ -37,29 +37,51 @@ import mongoose from "mongoose";
 // }
 
 
-const getItemById = async (itemId: any) => {
-	let val = await mealItem.findById(itemId);
-	console.log((val?.Name, val?.Image))
-	return (val?.Name, val?.Image);
+const getItemByID = async (itemId: any) => {
+	let eleDetails = await mealItem.findById(itemId);
+	return {
+		"Name": eleDetails?.Name,
+		"Image": eleDetails?.Image
+	};
 }
+
+// const makeMenuDay = (day:string,itemIDs:any[]) => {
+// 	let res: any[] = [];
+// 	itemIDs.forEach(async (itemID)=>{
+// 		let itemDet = await getItemByID(itemID);
+// 		// console.log(itemDet);
+// 		res.push(itemDet);
+// 	})
+// 	console.log(res);
+// 	return {};
+// }
 
 export const userTimeTable = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
-	console.log("running")
 	try {
 		let currUser: userResult = await <userResult>(<unknown>user.findOne({ Email: data.email }));
 		if (!currUser) {
 			res.status(404).send("User not found");
 		} else {
 			let userMess: any = currUser.Eating_Mess;
+			let ttSer = [];
 			let allTimeTable = await menuTable.find({ Mess: userMess });
-			allTimeTable.forEach(async (ele) => {
-				let currMealItems = ele.Meal_Items;
-				currMealItems.forEach((currMealItemId) => {
-					getItemById(currMealItemId);
+			for (let index = 0; index < allTimeTable.length; index++) {
+				const element = allTimeTable[index];
+				let eleDets = [];
+				for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
+					const ele2 = element.Meal_Items[idx2];
+					let eleDetails = await mealItem.findById(ele2);
+					eleDets.push(eleDetails);
+				}
+				ttSer.push({
+					"id": allTimeTable[index].id,
+					"Day": allTimeTable[index].Day,
+					"Type": allTimeTable[index].MealType,
+					"Items": eleDets
 				})
-			})
-			res.send(allTimeTable);
+			}
+			return res.send(ttSer);
 		}
 	} catch (e) {
 		res.send("Unexpected Error").status(501);
