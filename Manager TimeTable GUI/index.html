@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager</title>
+    <script type="text/javascript">
+        let managerToken = "";
+        async function logFoodItems(token) {
+            const res = await fetch("http://localhost:8000/manager/dashboard/allFoodItems", {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+            const foodItems = await res.json();
+            const selectEle = document.getElementById("itemSelect");
+            foodItems.forEach((ele) => {
+                const optEle = document.createElement("option");
+                optEle.setAttribute('value', ele.Id);
+                const textNode = document.createTextNode(ele.Name);
+                optEle.appendChild(textNode);
+                selectEle.appendChild(optEle);
+            });
+        }
+        const addToken = () => {
+            managerToken = document.getElementById("authcode").value;
+            console.log(managerToken);
+            logFoodItems(managerToken);
+        }
+
+        async function send() {
+            const daySelect = document.getElementById("daySelect");
+            const daySelVal = daySelect.value;
+            const itemSelect = document.getElementById("itemSelect");
+            const itemSelVal = itemSelect.value;
+            const typeSelect = document.getElementById("typeSelect");
+            const typeSelVal = typeSelect.value;
+            const res = await fetch("http://localhost:8000/manager/dashboard/allFoodItems").json();
+            console.log(res);
+        }
+    </script>
+</head>
+
+<body style="padding: 20px;">
+    <input type="text" placeholder="Enter Auth Code" name="auth" id="authcode">
+    <button id="submitToken" onclick="addToken()">Send Token</button>
+    <br><br>
+    Day: <select id="daySelect">
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+        <option value="Sunday">Sunday</option>
+    </select>
+    <br><br>
+    Meal Type : <select id="typeSelect">
+        <option value="Breakfast">Breakfast</option>
+        <option value="Breakfast">Lunch</option>
+        <option value="Breakfast">Snacks</option>
+        <option value="Breakfast">Dinner</option>
+    </select>
+    <br><br>
+    Items : <select id="itemSelect"></select>
+    <br><br>
+    <button id="send" onclick="send()">Add</button>
+</body>
+
+</html>

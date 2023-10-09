@@ -235,7 +235,7 @@ export const makeRead = async (req: any, res: Response) => {
 export const submitFeedback = async (req: any, res: Response) => {
 	try {
 		console.log(req.body);
-		return res.send("Feedback Submitted").status(200);
+		// return res.send("Feedback Submitted").status(200);
 		const currUser = await user.findOne({ Email: req.user.email });
 		const { FormID, BreakfastRating, LunchRating, DinnerRating, SnacksRating, Comments, MessServiceRating, HygieneRating } = req.body;
 		await actualFeedback.create({
