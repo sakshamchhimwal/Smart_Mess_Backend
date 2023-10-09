@@ -52,6 +52,7 @@
                 body: JSON.stringify(data)
             });
             console.log(res);
+            alert("Added " + daySelVal + "->" + typeSelVal + "->" + itemSelVal);
         }
 
     </script>
@@ -73,9 +74,9 @@
     <br><br>
     Meal Type : <select id="typeSelect">
         <option value="Breakfast">Breakfast</option>
-        <option value="Breakfast">Lunch</option>
-        <option value="Breakfast">Snacks</option>
-        <option value="Breakfast">Dinner</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Snacks">Snacks</option>
+        <option value="Dinner">Dinner</option>
     </select>
     <br><br>
     Items : <select id="itemSelect"></select>
