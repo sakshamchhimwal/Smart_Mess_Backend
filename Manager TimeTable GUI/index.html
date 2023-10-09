@@ -6,14 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager</title>
     <script type="text/javascript">
+
         let managerToken = "";
-        async function logFoodItems(token) {
+        async function logFoodItems() {
             const res = await fetch("http://localhost:8000/manager/dashboard/allFoodItems", {
                 method: 'GET',
                 headers: {
-                    'Authorization': 'Bearer ' + token
+                    'Authorization': 'Bearer ' + managerToken
                 }
             });
+            console.log(res);
             const foodItems = await res.json();
             const selectEle = document.getElementById("itemSelect");
             foodItems.forEach((ele) => {
@@ -24,12 +26,11 @@
                 selectEle.appendChild(optEle);
             });
         }
-        const addToken = () => {
+        const addToken = async () => {
             managerToken = document.getElementById("authcode").value;
             console.log(managerToken);
-            logFoodItems(managerToken);
+            await logFoodItems();
         }
-
         async function send() {
             const daySelect = document.getElementById("daySelect");
             const daySelVal = daySelect.value;
@@ -37,9 +38,22 @@
             const itemSelVal = itemSelect.value;
             const typeSelect = document.getElementById("typeSelect");
             const typeSelVal = typeSelect.value;
-            const res = await fetch("http://localhost:8000/manager/dashboard/allFoodItems").json();
+            const data = {
+                'day': daySelVal,
+                'mealType': typeSelVal,
+                'mealItem': itemSelVal
+            }
+            const res = await fetch("http://localhost:8000/manager/dashboard/addTimeTable", {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': 'Bearer ' + managerToken,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
             console.log(res);
         }
+
     </script>
 </head>
 

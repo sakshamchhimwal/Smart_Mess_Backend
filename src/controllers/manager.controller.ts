@@ -167,7 +167,7 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 
 
 export const floatFeedbackForm = async (req: any, res: Response) => {
-	const { title, description} = req.body;
+	const { title, description } = req.body;
 	if (!title) return res.status(400).send("Invalid Request");
 	try {
 		//add to notification collection
@@ -186,7 +186,7 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 			await sendNotification(tokenList[i], title, description);
 		}
 		return res.status(200).send("Notification Sent");
-	}catch (err) {
+	} catch (err) {
 		console.log(err);
 		return res.status(500).send("Some Error Occured");
 	}
@@ -217,7 +217,7 @@ export const getAllFeedbackForms = async (req: any, res: Response) => {
 			return b.FormStartDate.getTime() - a.FormStartDate.getTime();
 		});
 		return res.status(200).send(allForms);
-	}catch (err) {
+	} catch (err) {
 		console.log(err);
 		return res.status(500).send("Some Error Occured");
 	}
@@ -226,10 +226,10 @@ export const getAllFeedbackForms = async (req: any, res: Response) => {
 export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
 	try {
 		const formId = req.params.formID;
-		const allSubmissions = await actualFeedback.find({FormID: formId});
+		const allSubmissions = await actualFeedback.find({ FormID: formId });
 		//yet to decide the details to be viewed by manager is should contain the user details or not
 		return res.status(200).send(allSubmissions);
-	}catch (err) {
+	} catch (err) {
 		console.log(err);
 		return res.status(500).send("Some Error Occured");
 	}
