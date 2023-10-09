@@ -14,44 +14,33 @@ import { getItemRatings } from "./admin.controller";
 import mongoose from "mongoose";
 
 
-export const timeTableHandler = (req: any, res: Response, next: NextFunction) => {
-	let data = req.user;
-	try {
-		let currUser: userResult = <userResult>(<unknown>user.findOne({ Email: data.email }));
-		if (!currUser) {
-			res.status(404).send("User Not Found");
-		} else {
-			let eatMess = currUser.Eating_Mess;
-			let allTimeTable = menuTable.find({ Mess: eatMess });
-			res.send(200).send(allTimeTable);
-		}
-	} catch (error) {
-		res.status(501).send("Some Error Occured");
-		console.log(error);
-	}
-};
+// const getMenuItems = async (mealItems: any[]) => {
+// 	let menuItems: any[] = [];
+// 	for (let i = 0; i < mealItems.length; i++) {
+// 		let mealDetails = await mealItem.findById(mealItems[i]);
+// 		if (mealDetails) {
+// 			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
+// 		}
+// 	}
+// 	return menuItems;
+// }
 
 
-const getMenuItems = async (mealItems: any[]) => {
-	let menuItems: any[] = [];
-	for (let i = 0; i < mealItems.length; i++) {
-		let mealDetails = await mealItem.findById(mealItems[i]);
-		if (mealDetails) {
-			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
-		}
-	}
-	return menuItems;
-}
+// const makeMenuDay = (allTimeTable: any[]) => {
+// 	let res: any[] = [];
+// 	for (let i = 0; i < allTimeTable.length; i++) {
+// 		let items = getMenuItems(allTimeTable[i]);
+// 		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
+// 	}
+// 	console.log(res)
+// 	return res;
+// }
 
 
-const makeMenuDay = (allTimeTable: any[]) => {
-	let res: any[] = [];
-	for (let i = 0; i < allTimeTable.length; i++) {
-		let items = getMenuItems(allTimeTable[i]);
-		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
-	}
-	console.log(res)
-	return res;
+const getItemById = async (itemId: any) => {
+	let val = await mealItem.findById(itemId);
+	console.log((val?.Name, val?.Image))
+	return (val?.Name, val?.Image);
 }
 
 export const userTimeTable = async (req: any, res: Response, next: NextFunction) => {
@@ -65,7 +54,10 @@ export const userTimeTable = async (req: any, res: Response, next: NextFunction)
 			let userMess: any = currUser.Eating_Mess;
 			let allTimeTable = await menuTable.find({ Mess: userMess });
 			allTimeTable.forEach(async (ele) => {
-				console.log(ele.Meal_Items);
+				let currMealItems = ele.Meal_Items;
+				currMealItems.forEach((currMealItemId) => {
+					getItemById(currMealItemId);
+				})
 			})
 			res.send(allTimeTable);
 		}
