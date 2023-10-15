@@ -53,6 +53,7 @@
                 body: JSON.stringify(data)
             });
             console.log(res);
+            console.log(data)
             alert("Added " + daySelVal + "->" + typeSelVal + "->" + itemSelVal);
         }
 
@@ -76,10 +77,11 @@
             alert("Added new food item: " + name);
         }
         const getPartItem = async () => {
-            const foodItems = await fetch("http://localhost:8000/manager/dashboard/timetable").json();
+            const foodItems = await fetch("http://localhost:8000/manager/dashboard/timetable");
+            const foodRes = await foodItems.json();
             const day = document.getElementById("delDaySelect").value;
             const type = document.getElementById("delTypeSelect").value;
-            const filterFoodItems = foodItems.filter((ele) => {
+            const filterFoodItems = foodRes.filter((ele) => {
                 return (ele.Day === day && ele.type === type);
             })
             const selectEle = document.getElementById("delItemSelect");

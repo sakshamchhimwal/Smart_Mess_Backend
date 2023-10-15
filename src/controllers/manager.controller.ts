@@ -22,7 +22,12 @@ import mess from "../models/mess";
 
 
 export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
+	let data = req.user;
 	try {
+		let currUser = await user.findOne({Email:data.email});
+		if(!currUser){
+			return res.send("User Not found").status(404);
+		}
 		let name = req.body.name;
 		let image = req.body.image;
 		let category = req.body.category;
@@ -48,6 +53,7 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
+			console.log(req.body)
 			console.log(new mongoose.Types.ObjectId(newMealItem));
 			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
 			return res.send("Inserted").status(200);
@@ -81,6 +87,7 @@ const makeMenuDay = (allTimeTable: any[]) => {
 
 
 export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
+	// console.log("Running")
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
