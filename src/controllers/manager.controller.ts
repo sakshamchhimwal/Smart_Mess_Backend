@@ -24,8 +24,8 @@ import mess from "../models/mess";
 export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
 	let data = req.user;
 	try {
-		let currUser = await user.findOne({Email:data.email});
-		if(!currUser){
+		let currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
 			return res.send("User Not found").status(404);
 		}
 		let name = req.body.name;
@@ -256,7 +256,7 @@ export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
 }
 
 export const getAllFoodItems = async (req: any, res: Response) => {
-	const foodItems = await mealItem.find();
+	const foodItems = await mealItem.find().sort('Name');
 	let allItemNames = [];
 	for (let i = 0; i < foodItems.length; i++) {
 		allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id });
