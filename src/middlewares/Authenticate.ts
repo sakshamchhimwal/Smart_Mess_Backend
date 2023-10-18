@@ -18,7 +18,7 @@ export const Authenticate = () => {
         }
         // console.log(token);
         if (!token) {
-            res.status(404).send("Token not found");
+            res.status(501).send("Token not found");
         } else {
             try {
                 const data: JWTLoadData = verify(token, process.env.JWT_KEY!) as JWTLoadData;

@@ -39,7 +39,7 @@ const User = new Schema({
 	Eating_Mess: {
 		type: Schema.Types.ObjectId,
 		ref: "Mess",
-		// required: true,
+		default: new Schema.ObjectId("64fe052e15720924b85bd58d")
 	},
 });
 

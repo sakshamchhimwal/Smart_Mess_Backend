@@ -27,6 +27,7 @@
     "mongoose": "^7.4.3",
     "morgan": "~1.9.1",
     "multer": "^1.4.5-lts.1",
+    "node-schedule": "^2.1.1",
     "qs": "^6.11.2"
   },
   "devDependencies": {
@@ -36,6 +37,7 @@
     "@types/morgan": "^1.9.5",
     "@types/multer": "^1.4.8",
     "@types/node": "^20.5.6",
+    "@types/node-schedule": "^2.1.1",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
