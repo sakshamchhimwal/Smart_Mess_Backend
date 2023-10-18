@@ -9,6 +9,9 @@ const ratingTimeSeries = new Schema({
     },
     Rating: {
         type: Number
+    },
+    NoOfReviews: {
+        type: Number
     }
 });
 

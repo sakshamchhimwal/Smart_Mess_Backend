@@ -15,6 +15,7 @@ import actualFeedback from "../models/actualFeedback";
 import upload from "../config/multer";
 // import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 import mess from "../models/mess";
+import ratingTimeSeries from "../models/ratingTimeSeries";
 // import user from "../models/user";
 // import feedback from "../models/feedback";
 // import menuTable from "../models/menuTable";
@@ -309,62 +310,44 @@ export const getItemRating = async (req: any, res: Response) => {
 }
 
 
+export const getTimeSeries = async (req: any, res: Response) => {
+	let data = req.user;
+	try {
+		let currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
+			return res.send("User Not Found").status(404);
+		} else {
+			let allTimeSeries = await ratingTimeSeries.find({});
+			return res.send(allTimeSeries).status(200);
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(501).send("Internal Server Error");
+	}
+}
 
-// export const viewRatings = async (req: any, res: Response, next: NextFunction) => {
-//   try {
-//     let manager = await (<userResult>(<unknown>user.findOne({ Email: req.user.email })));
-//     if (!manager) {
-//       res.status(404).send("Manager Not Found");
-//     } else {
-//       let eatingMess = (<userResult>(<unknown>user.findOne({ Email: req.user.email }))).Eating_Mess;
-//       let allFeedbacks = feedback.find({ Mess: eatingMess });
-//       res.send(allFeedbacks).status(200);
-//     }
-//   } catch (error) {
-//     res.send("Unexpected Error").status(501);
-//     console.log(error);
-//   }
-// };
-
-// export const ongoingMeal = async (req: any, res: Response, next: NextFunction) => {
-//   try {
-//     let manager = await (<userResult>(<unknown>user.findOne({ Email: req.user.email })));
-//     if (!manager) {
-//       res.status(404).send("Manager Not Found");
-//     } else {
-//       let currMess = await (<userResult>(<unknown>user.findOne({ Email: req.user.email })))
-//         .Eating_Mess;
-//       if (!currMess) {
-//         res.status(404).send("Mess Not Found");
-//       }
-//       let day: number = req.body.date.getDay();
-//       let time: number = req.body.date.getHours();
-//       if (time > 22 && time < 10) {
-//         res
-//           .status(400)
-//           .send(menu_table.findOne({ Mess: currMess } && { MealType: 1 } && { Day: day }));
-//       }
-//       if (time > 10 && time < 15) {
-//         res
-//           .status(400)
-//           .send(menu_table.findOne({ Mess: currMess } && { MealType: 2 } && { Day: day }));
-//       }
-//       if (time > 15 && time < 18) {
-//         res
-//           .status(400)
-//           .send(menu_table.findOne({ Mess: currMess } && { MealType: 3 } && { Day: day }));
-//       }
-//       if (time > 18 && time < 22) {
-//         res
-//           .status(400)
-//           .send(menu_table.findOne({ Mess: currMess } && { MealType: 4 } && { Day: day }));
-//       }
-//     }
-//   } catch (error) {
-//     res.send("Unexpected Error").status(501);
-//     console.log(error);
-//   }
-// };
-
-
-
+export const addTimeSeries = async (req: any, res: Response) => {
+	const data = req.user;
+	try {
+		let currUser = await user.findOne({ Email: data.email });
+		if (!currUser) {
+			return res.send("User Not Found").status(404);
+		} else {
+			const date = new Date(req.body.date);
+			const foodItemId = req.body.foodItemId;
+			const rating = req.body.rating;
+			const numberOfRev = req.body.numberOfRev;
+			const dateString = date.toDateString();
+			const result = await ratingTimeSeries.create({
+				Date: dateString,
+				FoodItemId: foodItemId,
+				Rating: rating,
+				NoOfReviews: numberOfRev
+			});
+			console.log(result);
+			return res.send("Data Added Successfully").status(200);
+		}
+	} catch {
+		res.send("Internal Server Error").status(501);
+	}
+}
