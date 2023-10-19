@@ -18,6 +18,14 @@ import connectDB from "./config/connectDB";
 import notifications from "./models/notifications";
 
 
+
+import schedule from 'node-schedule';
+import backup from "./config/backupTimeSeriesData";
+
+const job = schedule.scheduleJob('59  * * *', function () {
+  backup();
+});
+
 var app = express();
 
 // view engine setup
@@ -48,6 +56,7 @@ app.use(Authenticate()); //all the routes below this will be authenticated
 
 app.use("/user", userRouter);
 app.use("/manager", managerRoutes);
+
 
 
 
