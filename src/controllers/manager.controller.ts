@@ -351,3 +351,22 @@ export const addTimeSeries = async (req: any, res: Response) => {
 		res.send("Internal Server Error").status(501);
 	}
 }
+
+// export const getItemName = async (req: any, res: Response) => {
+// 	const data = req.user;
+// 	try {
+// 		let currUser = await user.findOne({
+// 			Email: data.email,
+// 		});
+// 		if (!currUser) {
+// 			res.send("User not found").status(404);
+// 		} else {
+// 			const itemId = req.body.itemId;
+// 			const result = await mealItem.findById(itemId);
+// 			return res.send(result?.Name).status(200);
+// 		}
+// 	} catch (err) {
+// 		console.log(err);
+// 		return res.send("Unexpected Error").status(501);
+// 	}
+// }

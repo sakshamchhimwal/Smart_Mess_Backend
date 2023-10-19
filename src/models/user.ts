@@ -37,9 +37,9 @@ const User = new Schema({
 		type: Date,
 	},
 	Eating_Mess: {
-		type: Schema.Types.ObjectId,
+		type: mongoose.Types.ObjectId,
 		ref: "Mess",
-		default: new Schema.ObjectId("64fe052e15720924b85bd58d")
+		default: new mongoose.Types.ObjectId("64fe052e15720924b85bd58d")
 	},
 });
 
