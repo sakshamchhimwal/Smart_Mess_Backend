@@ -294,15 +294,17 @@ export const getItemRating = async (req: any, res: Response) => {
 		console.log(req.body);
 		let itemId = new mongoose.Types.ObjectId(req.body.itemId);
 		let mess = currUser.Eating_Mess;
-		let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
+		// let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
+		let findRating = await foodItemRatings.find({ Mess: mess});
 		if (!findRating) {
 			return res.send("Item Not Rated Yet").status(200);
 		}
-		findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
+		// findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
 		const opc = await detailOneItem(itemId);
 		console.log(opc);
-		const rating = { "ItemDetails": opc, "Rating": findRating?.Rating, "NumberOfRev": findRating?.NumberOfReviews };
-		res.send(rating).status(200);
+		// const rating = { "ItemDetails": opc, "Rating": findRating?.Rating, "NumberOfRev": findRating?.NumberOfReviews };
+		// res.send(rating).status(200);
+		return res.status(201).send(findRating)
 	} catch (err) {
 		console.log(err);
 		res.status(501).send("Internal Error");
