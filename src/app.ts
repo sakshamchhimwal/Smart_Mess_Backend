@@ -48,14 +48,14 @@ app.use("/static", express.static(path.join(__dirname, "..", "public")));
 
 
 // app.use("/", defaultRouter);
-app.use("/auth", authRouter);
-app.use("/guest", guestRouter);
+app.use("api/auth", authRouter);
+app.use("api/guest", guestRouter);
 
 app.use(Authenticate()); //all the routes below this will be authenticated
 //app.use(Authorize()); //only the below routes have to be authorized
 
-app.use("/user", userRouter);
-app.use("/manager", managerRoutes);
+app.use("api/user", userRouter);
+app.use("api/manager", managerRoutes);
 
 
 
