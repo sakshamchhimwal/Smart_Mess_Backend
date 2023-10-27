@@ -26,7 +26,9 @@ export const sendNotification = async (token: string, title: string, body: strin
         const message = {
             notification: {
                 title: title,
-                body: body
+                body: body,
+                // url:process.env.GOOGLE_OAUTH_REDIRECT_WEB,
+                imageUrl:process.env.SERVER_URL+"/static/images/IITDH.jpg"
             },
             // webpush: {
             //     fcmOptions: {

@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(createHttpError);
 //serve files of path /static
-app.use("/static", express.static(path.join(__dirname, "..", "public")));
+app.use("/api/static", express.static(path.join(__dirname, "..", "public")));
 
 
 
