@@ -29,7 +29,7 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                         First_Name: userInfo.given_name,
                         Last_Name: userInfo.family_name,
                         Image: userInfo.picture,
-                        Eating_Mess: null,
+                        // Eating_Mess: null,
                         Last_Login: Date.now()
                     });
                     user = newUser;
