@@ -20,6 +20,8 @@ import ratingTimeSeries from "../models/ratingTimeSeries";
 // import feedback from "../models/feedback";
 // import menuTable from "../models/menuTable";
 // import notifications from "../models/notifications";
+import NodeCache from "node-cache";
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 
 export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
@@ -57,6 +59,8 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 			console.log(req.body)
 			console.log(new mongoose.Types.ObjectId(newMealItem));
 			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
+			const val1 = myCache.del("manTT");
+			const val2 = myCache.del("userTT")
 			return res.send("Inserted").status(200);
 		}
 	} catch (error) {
@@ -95,25 +99,34 @@ export const managerTimeTable = async (req: any, res: Response, next: NextFuncti
 		if (!currUser) {
 			res.status(404).send("User not found");
 		} else {
-			let userMess: any = currUser.Eating_Mess;
-			let ttSer = [];
-			let allTimeTable = await menuTable.find({ Mess: userMess });
-			for (let index = 0; index < allTimeTable.length; index++) {
-				const element = allTimeTable[index];
-				let eleDets = [];
-				for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
-					const ele2 = element.Meal_Items[idx2];
-					let eleDetails = await mealItem.findById(ele2);
-					eleDets.push(eleDetails);
+			let value = myCache.get("manTT");
+			if (value === undefined) {
+				let userMess: any = currUser.Eating_Mess;
+				let ttSer = [];
+				let allTimeTable = await menuTable.find({ Mess: userMess });
+				for (let index = 0; index < allTimeTable.length; index++) {
+					const element = allTimeTable[index];
+					let eleDets = [];
+					for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
+						const ele2 = element.Meal_Items[idx2];
+						let eleDetails = await mealItem.findById(ele2);
+						eleDets.push(eleDetails);
+					}
+					ttSer.push({
+						"id": allTimeTable[index].id,
+						"Day": allTimeTable[index].Day,
+						"Type": allTimeTable[index].MealType,
+						"Items": eleDets
+					})
 				}
-				ttSer.push({
-					"id": allTimeTable[index].id,
-					"Day": allTimeTable[index].Day,
-					"Type": allTimeTable[index].MealType,
-					"Items": eleDets
-				})
+				let success = myCache.set("manTT", ttSer, 3000);
+				if (success) {
+					console.log("cached the tt");
+				}
+				return res.send(ttSer);
+			} else {
+				return res.send(value).status(216);
 			}
-			return res.send(ttSer);
 		}
 	} catch (e) {
 		res.send("Unexpected Error").status(501);
@@ -169,22 +182,6 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 		return res.status(500).send("Some Error Occured");
 	}
 };
-
-// const feedbackForm = new Schema({
-//     Title: {
-//         type: String,
-//         required: true,
-//     },
-//     Description: String,
-//     FormStartDate: {
-//         type: Date,
-//         required: true,
-//     },
-//     FormEndDate: {
-//         type: Date,
-//         required: true,
-//     },
-// });
 
 
 export const floatFeedbackForm = async (req: any, res: Response) => {
@@ -260,7 +257,7 @@ export const getAllFoodItems = async (req: any, res: Response) => {
 	const foodItems = await mealItem.find().sort('Name');
 	let allItemNames = [];
 	for (let i = 0; i < foodItems.length; i++) {
-		allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id });
+		allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id, "Img": foodItems[i].Image });
 	}
 	res.send(allItemNames);
 }

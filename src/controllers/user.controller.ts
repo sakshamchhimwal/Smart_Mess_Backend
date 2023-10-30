@@ -16,6 +16,8 @@ import mealItem from "../models/mealItem";
 import foodItemRatings from "../models/foodItemRatings";
 import { getItemRatings } from "./admin.controller";
 import mongoose from "mongoose";
+import NodeCache from "node-cache";
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 // const getMenuItems = async (mealItems: any[]) => {
 // 	let menuItems: any[] = [];
@@ -70,25 +72,34 @@ export const userTimeTable = async (
     if (!currUser) {
       res.status(404).send("User not found");
     } else {
-      let userMess: any = currUser.Eating_Mess;
-      let ttSer = [];
-      let allTimeTable = await menuTable.find({ Mess: userMess });
-      for (let index = 0; index < allTimeTable.length; index++) {
-        const element = allTimeTable[index];
-        let eleDets = [];
-        for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
-          const ele2 = element.Meal_Items[idx2];
-          let eleDetails = await mealItem.findById(ele2);
-          eleDets.push(eleDetails);
+      let value = myCache.get("userTT");
+      if (value === undefined) {
+        let userMess: any = currUser.Eating_Mess;
+        let ttSer = [];
+        let allTimeTable = await menuTable.find({ Mess: userMess });
+        for (let index = 0; index < allTimeTable.length; index++) {
+          const element = allTimeTable[index];
+          let eleDets = [];
+          for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
+            const ele2 = element.Meal_Items[idx2];
+            let eleDetails = await mealItem.findById(ele2);
+            eleDets.push(eleDetails);
+          }
+          ttSer.push({
+            id: allTimeTable[index].id,
+            Day: allTimeTable[index].Day,
+            Type: allTimeTable[index].MealType,
+            Items: eleDets,
+          });
         }
-        ttSer.push({
-          id: allTimeTable[index].id,
-          Day: allTimeTable[index].Day,
-          Type: allTimeTable[index].MealType,
-          Items: eleDets,
-        });
+        let success = myCache.set("userTT", ttSer, 3000);
+        if (success) {
+          console.log("cached the tt");
+        }
+        return res.send(ttSer);
+      } else {
+        return res.send(value).status(216);
       }
-      return res.send(ttSer);
     }
   } catch (e) {
     res.send("Unexpected Error").status(501);
