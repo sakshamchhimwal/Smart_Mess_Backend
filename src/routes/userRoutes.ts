@@ -7,6 +7,8 @@ import {
   makeRead,
   getAllNotifications,
   makeAllRead,
+  submitFoodReview,
+  getUserFoodReview,
 } from "../controllers/user.controller";
 const userRouter = express.Router();
 
@@ -22,5 +24,7 @@ userRouter.get("/dashboard/notifications", getAllNotifications);
 userRouter.post("/addNotificationToken/web", webAddNotificationTokenHandler);
 userRouter.post("/dashboard/makeRead", makeRead);
 userRouter.post("/dashboard/makeAllRead", makeAllRead);
+userRouter.post("/dashboard/submitFoodReview", submitFoodReview);
+userRouter.get("/dashboard/getFoodReview", getUserFoodReview)
 
 export default userRouter;

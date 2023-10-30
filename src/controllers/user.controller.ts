@@ -17,6 +17,7 @@ import foodItemRatings from "../models/foodItemRatings";
 import { getItemRatings } from "./admin.controller";
 import mongoose from "mongoose";
 import NodeCache from "node-cache";
+import dateWiseUserFeedback from "../models/dateWiseUserFeedback";
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 // const getMenuItems = async (mealItems: any[]) => {
@@ -248,10 +249,10 @@ export const getAllNotifications = async (req: any, res: Response) => {
       })
     );
     let response = null;
-    if(feedbackResponse) response = feedbackResponse;
-    if(announcementResponse) response = response.concat(announcementResponse);
+    if (feedbackResponse) response = feedbackResponse;
+    if (announcementResponse) response = response.concat(announcementResponse);
     // console.log(response);
-    if(response){
+    if (response) {
       response.sort((a: any, b: any) => {
         return b.sortParam - a.sortParam;
       });
@@ -337,3 +338,86 @@ export const submitFeedback = async (req: any, res: Response) => {
     res.status(501).send("Some Error Occured");
   }
 };
+
+
+
+const makeDate = (date: Date) => {
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+}
+
+
+export const getUserFoodReview = async (req: any, res: Response) => {
+  try {
+    let user = req.user;
+    const currUser = await user.findOne({ Email: req.user.email });
+    if (!currUser) {
+      return res.send("No User Exists").status(403);
+    }
+    const { foodId, rating, comments } = req.body;
+    const date = makeDate(new Date(Date.now()));
+    const isPresent = await dateWiseUserFeedback.findOne({
+      userId: currUser._id,
+      date: date
+    });
+    if (isPresent) {
+      return res.send(isPresent.ratings).status(200)
+    } else {
+      return res.send([]).status(204);
+    }
+  } catch (err) {
+    return res.send("Intrnal Server error").status(501);
+  }
+}
+
+
+export const submitFoodReview = async (req: any, res: Response) => {
+  try {
+    let user = req.user;
+    const currUser = await user.findOne({ Email: req.user.email });
+    if (!currUser) {
+      return res.send("No User Exists").status(403);
+    }
+    const { foodId, rating, comments } = req.body;
+    const date = makeDate(new Date(Date.now()));
+    const isPresent = await dateWiseUserFeedback.findOne({
+      userId: currUser._id,
+      date: date
+    });
+    try {
+      if (isPresent) {
+        const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate({
+          userId: currUser._id,
+          date: date
+        }, {
+          $addToSet: {
+            ratings: {
+              "foodId": foodId,
+              "comments": comments
+            }
+          }
+        });
+        return res.send("FeedBack Added").status(200);
+      } else {
+        const makeUpdate = await dateWiseUserFeedback.create({
+          userId: currUser._id,
+          date: date,
+          ratings: [{
+            "foodId": foodId,
+            "comments": comments
+          }]
+        });
+        return res.send("Feedback Created And FeedBack Added").status(200);
+      }
+    } catch (err) {
+      console.log("Err in Updating/Adding");
+      console.log(err);
+      return res.send("Internal Server Error").status(501);
+    }
+  } catch (err) {
+    console.log(err);
+    return res.send("Internal Server Error").status(501);
+  }
+}
