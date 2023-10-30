@@ -29,7 +29,7 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                         First_Name: userInfo.given_name,
                         Last_Name: userInfo.family_name,
                         Image: userInfo.picture,
-                        Eating_Mess: null,
+                        // Eating_Mess: null,
                         Last_Login: Date.now()
                     });
                     user = newUser;
@@ -60,16 +60,5 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
     }
 }
 
-const testHandler = async (req: Request, res: Response): Promise<Response> => {
-    const { token, title, body } = req.body;
-    if (!token || !title || !body) return res.status(400).send("Invalid Request");
-    try {
-        await sendNotification(token, title, body);
-    } catch (err) {
-        console.log(err);
-        return res.status(500).send("Some Error Occured");
-    }
-    return res.status(200).send("Test Successful");
-}
 
-export { webSigninHandler, testHandler };
+export { webSigninHandler };

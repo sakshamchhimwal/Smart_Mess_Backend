@@ -247,10 +247,15 @@ export const getAllNotifications = async (req: any, res: Response) => {
         };
       })
     );
-    const response = announcementResponse.concat(feedbackResponse);
-    response.sort((a: any, b: any) => {
-      return b.sortParam - a.sortParam;
-    });
+    let response = null;
+    if(feedbackResponse) response = feedbackResponse;
+    if(announcementResponse) response = response.concat(announcementResponse);
+    // console.log(response);
+    if(response){
+      response.sort((a: any, b: any) => {
+        return b.sortParam - a.sortParam;
+      });
+    }
     return res.status(200).send(response);
   } catch (err) {
     console.log(err);
