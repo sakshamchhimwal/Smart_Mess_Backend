@@ -351,7 +351,6 @@ const makeDate = (date: Date) => {
 
 export const getUserFoodReview = async (req: any, res: Response) => {
   try {
-    let user = req.user;
     const currUser = await user.findOne({ Email: req.user.email });
     if (!currUser) {
       return res.send("No User Exists").status(403);
@@ -375,12 +374,12 @@ export const getUserFoodReview = async (req: any, res: Response) => {
 
 export const submitFoodReview = async (req: any, res: Response) => {
   try {
-    let user = req.user;
     const currUser = await user.findOne({ Email: req.user.email });
     if (!currUser) {
       return res.send("No User Exists").status(403);
     }
-    const { foodId, rating, comments } = req.body;
+    const { id, value, comments } = req.body;
+    console.log("Body:",req.body);
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
@@ -392,9 +391,10 @@ export const submitFoodReview = async (req: any, res: Response) => {
           userId: currUser._id,
           date: date
         }, {
-          $addToSet: {
+          $push: {
             ratings: {
-              "foodId": foodId,
+              "foodId": id,
+              "rating": value,
               "comments": comments
             }
           }
@@ -405,7 +405,8 @@ export const submitFoodReview = async (req: any, res: Response) => {
           userId: currUser._id,
           date: date,
           ratings: [{
-            "foodId": foodId,
+            "foodId": id,
+            "rating": value,
             "comments": comments
           }]
         });
