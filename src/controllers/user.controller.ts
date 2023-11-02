@@ -207,6 +207,27 @@ export const webAddNotificationTokenHandler = async (
   }
 };
 
+export const androidAddNotificationTokenHandler = async (
+  req: any,
+  res: Response
+) => {
+  const { notification_token } = req.body;
+  const Email = req.user.email;
+  if (!notification_token) return res.status(400).send("Invalid Request");
+  try {
+    //check if token already exists with email and platform - web if yes then update it else create new
+    const token = await notificationToken.findOneAndUpdate(
+      { Email: Email, Platform: "android" },
+      { Token: notification_token },
+      { new: true, upsert: true }
+    );
+    return res.status(200).send(token);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Some Error Occured");
+  }
+};
+
 export const getAllNotifications = async (req: any, res: Response) => {
   try {
     const currUser: any = await user.findOne({ Email: req.user.email });
