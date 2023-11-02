@@ -60,5 +60,44 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
     }
 }
 
+const androidSigninHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
+    try {
+        const {Email,Username,Image,First_Name,Last_Name} = req.body;
+        console.log(req.body);
+        let user = await user_model.findOne({ Email: Email });
+        let isNewUser = false;
+        if (!user) {
+            //create new user
+            const newUser = await user_model.create({
+                Username: Username,
+                Email: Email,
+                Phone_Number: 0,
+                Role: "user",
+                First_Name: First_Name,
+                Last_Name: Last_Name,
+                Image: Image,
+                // Eating_Mess: null,
+                Last_Login: Date.now()
+            });
+            user = newUser;
+            isNewUser = true;
+        }
+        // console.log(user);
+        //create session
+        const payload: JWTLoadData = {
+            user: {
+                email: user.Email,
+                role: user.Role as string,
+                time: Date.now(),
+            },
+        };
+        const token = createSession(payload);
+        if (isNewUser) return res.status(201).json({ token, user });
+        return res.status(200).json({ token, user });
+    } catch {
+        return res.status(500).send("Some Error Occured");
+    }
+}
 
-export { webSigninHandler };
+
+export { webSigninHandler,androidSigninHandler };
