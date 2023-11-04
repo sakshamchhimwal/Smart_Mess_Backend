@@ -41,7 +41,7 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 		});
 		res.send("Inserted").status(200);
 	} catch (e) {
-		res.send("Unexpected Error").status(501);
+		res.send("Internal Server Error").status(501);
 	}
 }
 
@@ -65,7 +65,7 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 		}
 	} catch (error) {
 		console.log(error);
-		return res.status(500).send("Some Error Occured");
+		return res.status(501).send("Internal Server Error");
 	}
 };
 
@@ -154,7 +154,7 @@ export const deleteTimeTableHandler = async (req: any, res: Response, next: Next
 		}
 	} catch (err) {
 		console.log(err);
-		return res.status(500).send("Some Error Occured");
+		return res.status(500).send("Internal Server Error");
 	}
 };
 
@@ -179,7 +179,7 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 	}
 	catch (err) {
 		console.log(err);
-		return res.status(500).send("Some Error Occured");
+		return res.status(500).send("Internal Server Error");
 	}
 };
 
@@ -206,26 +206,11 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 		return res.status(200).send("Notification Sent");
 	} catch (err) {
 		console.log(err);
-		return res.status(500).send("Some Error Occured");
+		return res.status(500).send("Internal Server Error");
 	}
 }
 
 
-// const feedbackForm = new Schema({
-//     Title: {
-//         type: String,
-//         required: true,
-//     },
-//     Description: String,
-//     FormStartDate: {
-//         type: Date,
-//         required: true,
-//     },
-//     FormEndDate: {
-//         type: Date,
-//         required: true,
-//     },
-// });
 
 export const getAllFeedbackForms = async (req: any, res: Response) => {
 	try {
@@ -237,7 +222,7 @@ export const getAllFeedbackForms = async (req: any, res: Response) => {
 		return res.status(200).send(allForms);
 	} catch (err) {
 		console.log(err);
-		return res.status(500).send("Some Error Occured");
+		return res.status(500).send("Internal Server Error");
 	}
 }
 
@@ -249,17 +234,22 @@ export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
 		return res.status(200).send(allSubmissions);
 	} catch (err) {
 		console.log(err);
-		return res.status(500).send("Some Error Occured");
+		return res.status(500).send("Internal Server Error");
 	}
 }
 
 export const getAllFoodItems = async (req: any, res: Response) => {
-	const foodItems = await mealItem.find().sort('Name');
-	let allItemNames = [];
-	for (let i = 0; i < foodItems.length; i++) {
-		allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id, "Img": foodItems[i].Image });
+	try {
+		const foodItems = await mealItem.find().sort('Name');
+		let allItemNames = [];
+		for (let i = 0; i < foodItems.length; i++) {
+			allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id, "Img": foodItems[i].Image });
+		}
+		return res.send(allItemNames).status(200);
+	} catch (err) {
+		console.log(err);
+		return res.send({ "Error": "Internal Server Error" }).status(501);
 	}
-	res.send(allItemNames);
 }
 
 
@@ -292,7 +282,7 @@ export const getItemRating = async (req: any, res: Response) => {
 		let itemId = new mongoose.Types.ObjectId(req.body.itemId);
 		let mess = currUser.Eating_Mess;
 		// let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
-		let findRating = await foodItemRatings.find({ Mess: mess});
+		let findRating = await foodItemRatings.find({ Mess: mess });
 		if (!findRating) {
 			return res.send("Item Not Rated Yet").status(200);
 		}

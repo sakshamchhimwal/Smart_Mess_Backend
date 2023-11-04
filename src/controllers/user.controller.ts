@@ -20,26 +20,6 @@ import NodeCache from "node-cache";
 import dateWiseUserFeedback from "../models/dateWiseUserFeedback";
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
-// const getMenuItems = async (mealItems: any[]) => {
-// 	let menuItems: any[] = [];
-// 	for (let i = 0; i < mealItems.length; i++) {
-// 		let mealDetails = await mealItem.findById(mealItems[i]);
-// 		if (mealDetails) {
-// 			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
-// 		}
-// 	}
-// 	return menuItems;
-// }
-
-// const makeMenuDay = (allTimeTable: any[]) => {
-// 	let res: any[] = [];
-// 	for (let i = 0; i < allTimeTable.length; i++) {
-// 		let items = getMenuItems(allTimeTable[i]);
-// 		res.concat({ "MealType": allTimeTable[i].MealType, "Items": items.toString() });
-// 	}
-// 	console.log(res)
-// 	return res;
-// }
 
 const getItemByID = async (itemId: any) => {
   let eleDetails = await mealItem.findById(itemId);
@@ -48,17 +28,6 @@ const getItemByID = async (itemId: any) => {
     Image: eleDetails?.Image,
   };
 };
-
-// const makeMenuDay = (day:string,itemIDs:any[]) => {
-// 	let res: any[] = [];
-// 	itemIDs.forEach(async (itemID)=>{
-// 		let itemDet = await getItemByID(itemID);
-// 		// console.log(itemDet);
-// 		res.push(itemDet);
-// 	})
-// 	console.log(res);
-// 	return {};
-// }
 
 export const userTimeTable = async (
   req: any,
@@ -171,8 +140,7 @@ export const giveRating = async (req: any, res: Response) => {
       return res.send("Updated").status(200);
     }
   } catch (err) {
-    // console.log(err);
-    return res.send("Unexpected error occured").status(501);
+    return res.send("Interal Server Error").status(501);
   }
 };
 
@@ -281,7 +249,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
     return res.status(200).send(response);
   } catch (err) {
     console.log(err);
-    return res.status(500).send("Some Error Occurred");
+    return res.status(500).send("Internal Server Error");
   }
 };
 
@@ -301,7 +269,7 @@ export const makeRead = async (req: any, res: Response) => {
     }
   } catch (err) {
     console.log(err);
-    return res.status(501).send("Some error occured");
+    return res.status(501).send("Internal Server Error");
   }
 };
 
@@ -323,7 +291,7 @@ export const makeAllRead = async (req: any, res: Response) => {
     return res.status(200).send("Read");
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Some error occurred");
+    return res.status(500).send("Internal Server Error");
   }
 };
 
@@ -355,7 +323,7 @@ export const submitFeedback = async (req: any, res: Response) => {
     res.send("Feedback Submitted").status(200);
   } catch (err) {
     console.log(err);
-    res.status(501).send("Some Error Occured");
+    res.status(501).send("Internal Server Error");
   }
 };
 
@@ -373,7 +341,7 @@ export const getUserFoodReview = async (req: any, res: Response) => {
   try {
     const currUser = await user.findOne({ Email: req.user.email });
     if (!currUser) {
-      return res.send("No User Exists").status(403);
+      return res.send("No User Exists").status(404);
     }
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
