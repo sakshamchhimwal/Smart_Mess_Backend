@@ -376,7 +376,6 @@ export const getUserFoodReview = async (req: any, res: Response) => {
     if (!currUser) {
       return res.send("No User Exists").status(403);
     }
-    const { foodId, rating, comments } = req.body;
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
@@ -400,7 +399,7 @@ export const submitFoodReview = async (req: any, res: Response) => {
       return res.send("No User Exists").status(403);
     }
     const { id, value, comments } = req.body;
-    console.log("Body:",req.body);
+    console.log("Body:", req.body);
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
