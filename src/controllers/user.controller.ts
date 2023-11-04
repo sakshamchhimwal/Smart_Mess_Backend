@@ -207,6 +207,27 @@ export const webAddNotificationTokenHandler = async (
   }
 };
 
+export const androidAddNotificationTokenHandler = async (
+  req: any,
+  res: Response
+) => {
+  const { notification_token } = req.body;
+  const Email = req.user.email;
+  if (!notification_token) return res.status(400).send("Invalid Request");
+  try {
+    //check if token already exists with email and platform - web if yes then update it else create new
+    const token = await notificationToken.findOneAndUpdate(
+      { Email: Email, Platform: "android" },
+      { Token: notification_token },
+      { new: true, upsert: true }
+    );
+    return res.status(200).send(token);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Some Error Occured");
+  }
+};
+
 export const getAllNotifications = async (req: any, res: Response) => {
   try {
     const currUser: any = await user.findOne({ Email: req.user.email });
@@ -378,7 +399,8 @@ export const submitFoodReview = async (req: any, res: Response) => {
     if (!currUser) {
       return res.send("No User Exists").status(403);
     }
-    const { foodId, rating, comments } = req.body;
+    const { id, value, comments } = req.body;
+    console.log("Body:",req.body);
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
@@ -390,9 +412,10 @@ export const submitFoodReview = async (req: any, res: Response) => {
           userId: currUser._id,
           date: date
         }, {
-          $addToSet: {
+          $push: {
             ratings: {
-              "foodId": foodId,
+              "foodId": id,
+              "rating": value,
               "comments": comments
             }
           }
@@ -403,7 +426,8 @@ export const submitFoodReview = async (req: any, res: Response) => {
           userId: currUser._id,
           date: date,
           ratings: [{
-            "foodId": foodId,
+            "foodId": id,
+            "rating": value,
             "comments": comments
           }]
         });
