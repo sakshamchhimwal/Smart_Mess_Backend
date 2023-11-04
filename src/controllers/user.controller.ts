@@ -330,7 +330,6 @@ export const makeAllRead = async (req: any, res: Response) => {
 export const submitFeedback = async (req: any, res: Response) => {
   try {
     console.log(req.body);
-    // return res.send("Feedback Submitted").status(200);
     const currUser = await user.findOne({ Email: req.user.email });
     const {
       FormID,
