@@ -351,7 +351,6 @@ const makeDate = (date: Date) => {
 
 export const getUserFoodReview = async (req: any, res: Response) => {
   try {
-    let user = req.user;
     const currUser = await user.findOne({ Email: req.user.email });
     if (!currUser) {
       return res.send("No User Exists").status(403);
@@ -375,7 +374,6 @@ export const getUserFoodReview = async (req: any, res: Response) => {
 
 export const submitFoodReview = async (req: any, res: Response) => {
   try {
-    let user = req.user;
     const currUser = await user.findOne({ Email: req.user.email });
     if (!currUser) {
       return res.send("No User Exists").status(403);
