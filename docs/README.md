@@ -13,7 +13,7 @@
     - Implemented the manager route to update the time table list.
     - Implemented the manager route to get the raitng time series graph.
     - Implemnted the manager route to get ratings of particular food item.
-    - In frontend I made the time series chart that the manager sees of the raitng time series data.
+    - In frontend I made the time series chart that the manager sees of the rating time series data.
     - Implemented the caching system for quick retrval of timetable when the server load is high.
     - Implemented the user routes to view the time table.
     - Implemented the user routes to submit food rating and food comments.
