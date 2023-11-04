@@ -104,21 +104,20 @@ export const managerTimeTable = async (req: any, res: Response, next: NextFuncti
 				let userMess: any = currUser.Eating_Mess;
 				let ttSer = [];
 				let allTimeTable = await menuTable.find({ Mess: userMess });
-				for (let index = 0; index < allTimeTable.length; index++) {
-					const element = allTimeTable[index];
-					let eleDets = [];
-					for (let idx2 = 0; idx2 < element.Meal_Items.length; idx2++) {
-						const ele2 = element.Meal_Items[idx2];
-						let eleDetails = await mealItem.findById(ele2);
-						eleDets.push(eleDetails);
-					}
-					ttSer.push({
-						"id": allTimeTable[index].id,
-						"Day": allTimeTable[index].Day,
-						"Type": allTimeTable[index].MealType,
-						"Items": eleDets
+				ttSer = await Promise.all(
+					allTimeTable.map(async (ele) => {
+					  return {
+						id: ele.id,
+						Day: ele.Day,
+						Type: ele.MealType,
+						Items: await Promise.all(
+							ele.Meal_Items.map(async (foodId) => {
+							return await mealItem.findById(foodId);
+						  })
+						)
+					  }
 					})
-				}
+				  )
 				let success = myCache.set("manTT", ttSer, 3000);
 				if (success) {
 					console.log("cached the tt");
