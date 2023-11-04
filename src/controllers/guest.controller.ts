@@ -51,10 +51,10 @@ export const guestTimeTableHandler = async (
       let meals = await menuTable.find({ Mess: currMess._id });
       let allFoodItems = await foodItem.find();
       let result: Map<string, any> = new Map();
-      meals.forEach( (meal) => {
+      meals.forEach((meal) => {
         let day = meal.Day;
         let mealType = meal.MealType;
-        let mealItems: any=[];
+        let mealItems: any = [];
         meal.Meal_Items.forEach((item) => {
           let currItem = allFoodItems.find((food) => food._id.toString() === item.toString());
           mealItems.push(currItem);
