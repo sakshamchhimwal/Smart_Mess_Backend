@@ -53,9 +53,11 @@ export const userTimeTable = async (
               id: ele.id,
               Day: ele.Day,
               Type: ele.MealType,
-              Items: ele.Meal_Items.map(async (foodId) => {
-                return await mealItem.findById(foodId);
-              })
+              Items: await Promise.all(
+                  ele.Meal_Items.map(async (foodId) => {
+                  return await mealItem.findById(foodId);
+                })
+              )
             }
           })
         )
