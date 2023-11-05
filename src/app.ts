@@ -12,22 +12,27 @@ import managerRoutes from "./routes/managerRoutes";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/userRoutes"
 import { Authenticate } from "./middlewares/Authenticate";
-import { Authorize } from "./middlewares/Authorize";
+// import { Authorize } from "./middlewares/Authorize";
 import connectDB from "./config/connectDB";
-import notifications from "./models/notifications";
+// import notifications from "./models/notifications";
 
 
 
 import schedule from 'node-schedule';
 import backup from "./config/backupTimeSeriesData";
 
-schedule.scheduleJob('59  * * *', function () {
+const job = schedule.scheduleJob('59 */23 * * *', function () {
   console.log("Backing UP");
   backup();
 });
 
-var app = express();
+const lob = schedule.scheduleJob('*/1 * * * *', function () {
+  console.log(Date.now(), 'The answer to life, the universe, and everything!');
+});
 
+
+
+var app = express();
 
 //connect to database
 connectDB();
@@ -52,9 +57,6 @@ app.use(Authenticate()); //all the routes below this will be authenticated
 
 app.use("/api/user", userRouter);
 app.use("/api/manager", managerRoutes);
-
-
-
 
 
 // catch 404 and forward to error handler

@@ -66,8 +66,27 @@ This route is used to get the notifications of a particular user.
 ### Response: 
 
 - 200 :
-```json
-{}
+```
+[
+    {
+        "_id": "6547eb104ac7a98c8b640a49",
+        "Title": "Hello",
+        "Description": "Announcement",
+        "FormStartDate": "2023-11-05T19:20:48.185Z",
+        "FormEndDate": "2023-11-12T19:20:48.185Z",
+        "messageType": "feedback",
+        "sortParam": "2023-11-05T19:20:48.185Z"
+    },
+    {
+        "_id": "65478f48646caeb893e3e694",
+        "Title": "Hello",
+        "Description": "Announcement",
+        "FormStartDate": "2023-11-05T12:49:12.318Z",
+        "FormEndDate": "2023-11-12T12:49:12.318Z",
+        "messageType": "feedback",
+        "sortParam": "2023-11-05T12:49:12.318Z"
+    },
+    ...]
 ```
 - 501 : Internal Server Error.
 
@@ -92,7 +111,17 @@ This route is used to get the review of a user of the food items he rated on tha
 
 - 200 :
 ```
-{}
+[
+    {
+        "foodId": "65125b545c1c58bf8ee40019",
+        "rating": 4,
+        "comments": "Good Poha"
+    },
+    {
+        "foodId": "65125b545c1c58bf8ee4001b",
+        "rating": 4,
+        "comments": ""
+    },...]
 ```
 - 204 : `[]`
 - 404 : `No User Exixts`

@@ -64,8 +64,18 @@ This route return all the food items that are existing. Can be upgraded to mess 
 
 ### Response
 - 200 : 
-```json
-{}
+```
+[
+    {
+        "Name": " GREEN & RED  CHUTNEY",
+        "Id": "65125b545c1c58bf8ee40047",
+        "Img": "https://www.indianveggiedelight.com/wp-content/uploads/2021/07/green-chutney-featured.jpg"
+    },
+    {
+        "Name": " KASHMIRI DUM ALLO",
+        "Id": "65125b545c1c58bf8ee40048",
+        "Img": "https://www.vegrecipesofindia.com/wp-content/uploads/2012/04/kashmiri-dum-aloo-recipe-11a.jpg"
+    },...]
 ```
 - 501 : Internal Server Error.
 
@@ -92,7 +102,25 @@ This route returns the item rating of the requested item.
 ### Response
 - 200 : 
 ```json
-{} or "Item not Rated Yet"
+{
+  [
+    {
+        "_id": "6517bafd1a9f243c6958837b",
+        "Mess": "64fe052e15720924b85bd58d",
+        "FoodItem": "65125b545c1c58bf8ee4001c",
+        "Rating": 3.4,
+        "NumberOfReviews": 5,
+        "__v": 0
+    },
+    {
+        "_id": "6517e98d74b8afdddecea6e8",
+        "Mess": "64fe052e15720924b85bd58d",
+        "FoodItem": "65125b545c1c58bf8ee40019",
+        "Rating": 3.730769230769231,
+        "NumberOfReviews": 26,
+        "__v": 0
+    },...]
+} or "Item not Rated Yet"
 ```
 - 404 : `User is not found`
 - 501 : `Internal Server Error`
@@ -119,8 +147,24 @@ This route returns the variation of ratings on every week basis.
 
 ### Response
 - 200 : 
-```json
-{}
+```
+[
+    {
+        "_id": "652f67a14273d1f88e38f04d",
+        "Date": "2023-09-12T18:30:00.000Z",
+        "FoodItemId": "65125b545c1c58bf8ee40045",
+        "Rating": 5,
+        "NoOfReviews": 2,
+        "__v": 0
+    },
+    {
+        "_id": "652f67ad4273d1f88e38f050",
+        "Date": "2023-09-19T18:30:00.000Z",
+        "FoodItemId": "65125b545c1c58bf8ee40045",
+        "Rating": 4.2,
+        "NoOfReviews": 10,
+        "__v": 0
+    },...]
 ```
 - 404 : `User is not found`
 - 501 : `Internal Server Error`
