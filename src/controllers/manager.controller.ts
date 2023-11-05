@@ -1,6 +1,4 @@
 import express, { response } from "express";
-// import menu_table from "../models/menuTable";
-// import meal_item from "../models/mealItem";
 import { NextFunction, Response } from "express";
 import { sendNotification } from "../config/firebaseWeb";
 import notificationToken from "../models/notificationToken";
@@ -12,14 +10,8 @@ import menuTable from "../models/menuTable";
 import mongoose, { ObjectId } from "mongoose";
 import foodItemRatings from "../models/foodItemRatings";
 import actualFeedback from "../models/actualFeedback";
-import upload from "../config/multer";
-// import { MealItems, MealRequest, MenuTableResult, userResult } from "../Interface/interfaces";
 import mess from "../models/mess";
 import ratingTimeSeries from "../models/ratingTimeSeries";
-// import user from "../models/user";
-// import feedback from "../models/feedback";
-// import menuTable from "../models/menuTable";
-// import notifications from "../models/notifications";
 import NodeCache from "node-cache";
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
@@ -92,7 +84,6 @@ const makeMenuDay = (allTimeTable: any[]) => {
 
 
 export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
-	// console.log("Running")
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
@@ -281,16 +272,12 @@ export const getItemRating = async (req: any, res: Response) => {
 		console.log(req.body);
 		let itemId = new mongoose.Types.ObjectId(req.body.itemId);
 		let mess = currUser.Eating_Mess;
-		// let findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
 		let findRating = await foodItemRatings.find({ Mess: mess });
 		if (!findRating) {
 			return res.send("Item Not Rated Yet").status(200);
 		}
-		// findRating = await foodItemRatings.findOne({ Mess: mess, FoodItem: itemId });
 		const opc = await detailOneItem(itemId);
 		console.log(opc);
-		// const rating = { "ItemDetails": opc, "Rating": findRating?.Rating, "NumberOfRev": findRating?.NumberOfReviews };
-		// res.send(rating).status(200);
 		return res.status(201).send(findRating)
 	} catch (err) {
 		console.log(err);

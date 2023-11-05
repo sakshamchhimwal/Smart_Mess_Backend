@@ -1,12 +1,11 @@
 import cors from "cors";
 import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
-import createHttpError, { CreateHttpError } from "http-errors";
-import express, { Express, Request, Response, NextFunction } from "express";
+import createHttpError from "http-errors";
+import express, { Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
 // import { defaultRouter } from "./routes";
-// import userRouter from "./routes/userRoutes";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
@@ -22,15 +21,13 @@ import notifications from "./models/notifications";
 import schedule from 'node-schedule';
 import backup from "./config/backupTimeSeriesData";
 
-const job = schedule.scheduleJob('59  * * *', function () {
+schedule.scheduleJob('59  * * *', function () {
+  console.log("Backing UP");
   backup();
 });
 
 var app = express();
 
-// view engine setup
-// app.set("views", path.join(__dirname, "views"));
-// app.set("view engine", "jade");
 
 //connect to database
 connectDB();
@@ -41,13 +38,12 @@ app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(createHttpError);
+
 //serve files of path /static
 app.use("/api/static", express.static(path.join(__dirname, "..", "public")));
 
 
 
-// app.use("/", defaultRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/guest", guestRouter);
 
