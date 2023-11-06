@@ -200,7 +200,7 @@ This route is used to add food to a particular mess menu.
 This route is for the manager to create a new food item in the list of all the pre-existing food items.
 
 ### Request
-- Method: `PATCH`
+- Method: `PUT`
 - Endpoint: `/api/dashboard/createFoodItem`
 - Request Body:
 ```json
@@ -310,4 +310,30 @@ This route is used by the manager to make announcements.
 ```
 ### Response
 - 200 : `Notification Sent`
+- 501 : `Internal Server Error`
+
+## Deleting Food Items
+
+This route is used by the manager to delete the food items from the timetable.
+
+### Request
+- Method: `DELETE`
+- Endpoint: `/api/dashboard/deleteTimeTable`
+- Request Body:
+```json
+{
+  "dat":"day to be deleted",
+  "mealType":"meal type Breakfast/Lunch...",
+  "mealItem":"meal item foodId to be deleted"
+}
+```
+- Request Headers:
+```json
+{
+  "Authorization": "Bearer <token>"
+}
+```
+### Response
+- 200 : `Deleted`
+- 404 : `User is not found`
 - 501 : `Internal Server Error`
