@@ -11,6 +11,7 @@
     * [Getting all the submitted feedback forms](manager?id=getting-all-the-submitted-feedback-forms)
     * [Floating FeedBack forms](manager?id=floating-feedback-forms)
     * [Making Announcements](manager?id=making-announcements)
+    * [Deleting Food Items](manager?id=deleting-food-items)
 * [User](user?id=user-routes)
     * [Time Table](user?id=user-time-table)
     * [User Notifications](user?id=user-notifications)
