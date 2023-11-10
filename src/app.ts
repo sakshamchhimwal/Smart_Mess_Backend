@@ -21,14 +21,14 @@ import connectDB from "./config/connectDB";
 import schedule from 'node-schedule';
 import backup from "./config/backupTimeSeriesData";
 
-const job = schedule.scheduleJob('59 */23 * * *', function () {
+const job = schedule.scheduleJob('*/1 * * * *', async function () {
   console.log("Backing UP");
-  backup();
+  await backup();
 });
 
-const lob = schedule.scheduleJob('*/1 * * * *', function () {
-  console.log(Date.now(), 'The answer to life, the universe, and everything!');
-});
+// const lob = schedule.scheduleJob('*/1 * * * *', function () {
+//   console.log(Date.now(), 'The answer to life, the universe, and everything!');
+// });
 
 
 

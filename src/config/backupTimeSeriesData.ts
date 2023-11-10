@@ -22,26 +22,38 @@ const getDayTimeTable = async () => {
     let dayItemsArr: any[] = [];
     foodItems.forEach((ele) => {
         ele.Meal_Items.forEach((eleId) => {
-            dayItemsArr.push(eleId);
+            dayItemsArr.push(eleId.toString());
         })
     })
     return dayItemsArr;
 }
 
 const backup = async () => {
-    const ratings = await foodItemRatings.find();
-    const dayItemsToBeBackedUp = await getDayTimeTable();
-    ratings.forEach(async (ele) => {
-        if (dayItemsToBeBackedUp.includes(ele.FoodItem)) {
-            await ratingTimeSeries.create({
-                Date: currDateString,
-                FoodItemId: ele.FoodItem,
-                Rating: ele.Rating,
-                NoOfReviews: ele.NumberOfReviews
-            })
-        }
-    });
-    console.log("BackedUp Rating")
+    try {
+        const ratings = await foodItemRatings.find();
+        const dayItemsToBeBackedUp = await getDayTimeTable();
+        // console.log(dayItemsToBeBackedUp);
+        ratings.forEach(async (ele) => {
+            if (dayItemsToBeBackedUp.includes(ele.FoodItem?.toString())) {
+                // console.log({
+                //     Date: currDateString,
+                //     FoodItemId: ele.FoodItem,
+                //     Rating: ele.Rating,
+                //     NoOfReviews: ele.NumberOfReviews
+                // });
+                await ratingTimeSeries.create({
+                    Date: currDateString,
+                    FoodItemId: ele.FoodItem,
+                    Rating: ele.Rating,
+                    NoOfReviews: ele.NumberOfReviews
+                })
+            }
+        });
+        console.log("BackedUp Rating")
+    } catch (err) {
+        console.log(err);
+        console.log("Backup Failed");
+    }
 }
 
 export default backup;
