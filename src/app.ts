@@ -21,7 +21,7 @@ import connectDB from "./config/connectDB";
 import schedule from 'node-schedule';
 import backup from "./config/backupTimeSeriesData";
 
-const job = schedule.scheduleJob('* */23 * * *', async function () {
+const job = schedule.scheduleJob('* 23 * * *', async function () {
   console.log("Backing UP");
   await backup();
 });
