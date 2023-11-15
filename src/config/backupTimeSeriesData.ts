@@ -13,11 +13,12 @@ const dayMap = [
     'Sunday'
 ];
 
-const currDate = new Date(Date.now());
-const currDay = currDate.getUTCDay();
-const currDateString = currDate.toDateString();
+
 
 const getDayTimeTable = async () => {
+    const currDate = new Date(Date.now());
+    const currDay = currDate.getUTCDay();
+    const currDateString = currDate.toDateString();
     const foodItems = await menuTable.find({ Day: dayMap[currDay - 1] });
     let dayItemsArr: any[] = [];
     foodItems.forEach((ele) => {
@@ -30,6 +31,9 @@ const getDayTimeTable = async () => {
 
 const backup = async () => {
     try {
+        const currDate = new Date(Date.now());
+        const currDay = currDate.getUTCDay();
+        const currDateString = currDate.toDateString();
         const ratings = await foodItemRatings.find();
         const dayItemsToBeBackedUp = await getDayTimeTable();
         // console.log(dayItemsToBeBackedUp);
