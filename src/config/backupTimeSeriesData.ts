@@ -36,15 +36,8 @@ const backup = async () => {
         const currDateString = currDate.toDateString();
         const ratings = await foodItemRatings.find();
         const dayItemsToBeBackedUp = await getDayTimeTable();
-        // console.log(dayItemsToBeBackedUp);
         ratings.forEach(async (ele) => {
             if (dayItemsToBeBackedUp.includes(ele.FoodItem?.toString())) {
-                // console.log({
-                //     Date: currDateString,
-                //     FoodItemId: ele.FoodItem,
-                //     Rating: ele.Rating,
-                //     NoOfReviews: ele.NumberOfReviews
-                // });
                 await ratingTimeSeries.create({
                     Date: currDateString,
                     FoodItemId: ele.FoodItem,
