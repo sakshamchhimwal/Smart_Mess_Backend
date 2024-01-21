@@ -28,5 +28,12 @@ userRouter.post("/dashboard/makeRead", makeRead);
 userRouter.post("/dashboard/makeAllRead", makeAllRead);
 userRouter.post("/dashboard/submitFoodReview", submitFoodReview);
 
+// REST Routes
+userRouter.get("/dashboard/suggestions",);
+userRouter.post("/dashboard/suggestion",);
+userRouter.patch("/dashboard/suggestion",);
+userRouter.delete("/dashboard/suggestion",);
+
+
 export default userRouter;
 
