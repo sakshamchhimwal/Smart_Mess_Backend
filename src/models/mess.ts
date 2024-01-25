@@ -16,26 +16,6 @@ const mess = new Schema({
     rating: {
         type: Number,
         required: true
-    },
-    suggestions: {
-        type: [{
-            userId: Schema.Types.ObjectId,
-            suggestionId: Schema.Types.String,
-            suggestionType: Schema.Types.String,
-            suggestion: Schema.Types.String,
-            upvotes: {
-                type: Schema.Types.Number,
-                default: 0
-            },
-            downvotes: {
-                type: Schema.Types.Number,
-                default: 0
-            },
-            createdAt: {
-                type: Schema.Types.Date,
-                required: true
-            }
-        }]
     }
 });
 
