@@ -7,24 +7,20 @@ const Suggestions = new Schema({
 	suggestionType: { type: Schema.Types.String, required: true },
 	suggestion: Schema.Types.String,
 	image: Schema.Types.String,
-	upvotes: {
-		type: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: "users",
-			},
-		],
-		default: [],
-	},
-	downvotes: {
-		type: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: "users",
-			},
-		],
-		default: [],
-	},
+	upvotes: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: "users",
+			default: [],
+		},
+	],
+	downvotes: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: "users",
+			default: [],
+		},
+	],
 	createdAt: {
 		type: Schema.Types.Date,
 		required: true,

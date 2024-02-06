@@ -26,7 +26,8 @@ export const getSuggestions = async (
 			})
 				.skip((currPage - 1) * LIMIT)
 				.limit(LIMIT)
-				.populate("userId", "upvotes", "downvotes")
+				.populate("userId", "Username Image")
+				.populate("upvotes downvotes","Username")
 				.exec();
 			if (paginatedSuggestions.length > 0) {
 				return res.send({

@@ -29,13 +29,15 @@ export const uploadToCloudinary = async (
 	try {
 		// console.log(req.body);
 		// console.log(req.file);
-		const uploadedImage = await cloudinary.uploader.upload(
-			`./tmp/uploads/users/${req.file?.filename}`,
-			{
-				folder: "Smart_Mess/User_Uploads",
-			}
-		);
-		req.body.image = uploadedImage.secure_url;
+		if (req.file) {
+			const uploadedImage = await cloudinary.uploader.upload(
+				`./tmp/uploads/users/${req.file?.filename}`,
+				{
+					folder: "Smart_Mess/User_Uploads",
+				}
+			);
+			req.body.image = uploadedImage.secure_url;
+		}
 		next();
 	} catch (err) {
 		const mute = err;

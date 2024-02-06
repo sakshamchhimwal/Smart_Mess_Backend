@@ -20,6 +20,7 @@
     "debug": "~2.6.9",
     "dotenv": "^16.3.1",
     "express": "~4.16.1",
+    "express-rate-limit": "^7.1.5",
     "firebase": "^10.3.1",
     "firebase-admin": "^11.10.1",
     "google-auth-library": "^9.0.0",
