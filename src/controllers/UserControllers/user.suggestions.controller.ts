@@ -56,13 +56,15 @@ export const postSuggestion = async (
 			return next(createHttpError(403, "Unauthorized"));
 		}
 		const messId = currUser.Eating_Mess;
-		const newSuggestion = req.body.newSuggestion;
+		const newSuggestion = req.body;
+		// console.log(req.body);
 		const addSuggestion = await SuggestionsModel.create({
 			messId,
 			userId: currUser._id,
 			...newSuggestion,
+			createdAt: Date.now()
 		});
-		if (addSuggestion.isModified()) {
+		if (addSuggestion) {
 			return res
 				.send({ Message: "Suggestion added successfully" })
 				.status(200);

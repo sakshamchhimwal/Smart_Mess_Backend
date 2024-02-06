@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+
 import {
 	giveRating,
 	userTimeTable,
@@ -21,7 +23,23 @@ import {
 	getAllSuggestions,
 	voteSuggestion,
 } from "../controllers/UserControllers/user.dashboard.controller";
+import { uploadToCloudinary } from "../services/uploadToCloudinary";
+// import uploadToCloudinary from "../services/uploadToCloudinary";
 const userRouter = express.Router();
+
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "./tmp/uploads/users");
+	},
+	filename: function (req, file, cb) {
+		const splitted = file.originalname.split('.');
+		const ext = splitted[splitted.length-1];
+		const uniqueSuffix = req.body.suggestionId;
+		cb(null, uniqueSuffix+`.${ext}`);
+	},
+});
+
+const upload = multer({ storage: storage });
 
 // GET Routes
 userRouter.get("/dashboard/timetable", userTimeTable);
@@ -46,7 +64,12 @@ userRouter.patch("/dashboard/suggestion", voteSuggestion);
 
 // REST Routes
 userRouter.get("/profile/suggestion", getSuggestions);
-userRouter.post("/profile/suggestion", postSuggestion);
+userRouter.post(
+	"/profile/suggestion",
+	upload.single("image"),
+	uploadToCloudinary,
+	postSuggestion
+);
 userRouter.patch("/profile/suggestion", patchSuggestion);
 userRouter.delete("/profile/suggestion", deleteSuggestion);
 
