@@ -76,6 +76,7 @@ export const voteSuggestion = async (
 		);
 		if (newVote != null) {
 			return res.send({
+				_id: newVote._id,
 				message: "Voted Successfully",
 				upvotes: newVote?.upvotes,
 				downvotes: newVote?.downvotes,

@@ -1,17 +1,17 @@
 import cors from "cors";
 import * as dotenv from "dotenv";
-dotenv.config({ path: __dirname + "/.env" });
+import express, { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
-import express, { Request, Response, NextFunction } from "express";
 import logger from "morgan";
 import path from "path";
+dotenv.config({ path: __dirname + "/.env" });
 // import { defaultRouter } from "./routes";
+import cookieParser from "cookie-parser";
+import { Authenticate } from "./middlewares/Authenticate";
 import authRouter from "./routes/authRoutes";
 import guestRouter from "./routes/guestRoutes";
 import managerRoutes from "./routes/managerRoutes";
-import cookieParser from "cookie-parser";
 import userRouter from "./routes/userRoutes";
-import { Authenticate } from "./middlewares/Authenticate";
 // import { Authorize } from "./middlewares/Authorize";
 import connectDB from "./config/connectDB";
 // import notifications from "./models/notifications";
@@ -36,6 +36,9 @@ const limiter = rateLimit({
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 	// store: ... , // Use an external store for consistency across multiple server instances.
 });
+
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 var app = express();
 
@@ -77,8 +80,24 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 	res.render("error");
 });
 
-app.listen(process.env.PORT, () => {
+
+
+const server = app.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
+});
+
+const io = new Server(server,{
+	cors:{
+		origin:"*"
+	}
+});
+
+io.on("connection", (socket) => {
+	console.log("connected ",socket.id);
+	socket.on("vote-cast", (vote) => {
+		console.log(vote);
+		socket.emit("vote-update", vote);
+	});
 });
 
 //exporting app to be used in test
