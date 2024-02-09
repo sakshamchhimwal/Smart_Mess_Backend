@@ -15,8 +15,11 @@ import ratingTimeSeries from "../models/ratingTimeSeries";
 import NodeCache from "node-cache";
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
-
-export const createNewFoodItem = async (req: any, res: Response, next: NextFunction) => {
+export const createNewFoodItem = async (
+	req: any,
+	res: Response,
+	next: NextFunction
+) => {
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
@@ -29,15 +32,19 @@ export const createNewFoodItem = async (req: any, res: Response, next: NextFunct
 		await mealItem.create({
 			Name: name,
 			Image: image,
-			Category: category
+			Category: category,
 		});
 		res.send("Inserted").status(200);
 	} catch (e) {
 		res.send("Internal Server Error").status(501);
 	}
-}
+};
 
-export const addTimeTable = async (req: any, res: Response, next: NextFunction) => {
+export const addTimeTable = async (
+	req: any,
+	res: Response,
+	next: NextFunction
+) => {
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
@@ -48,11 +55,18 @@ export const addTimeTable = async (req: any, res: Response, next: NextFunction) 
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let newMealItem = req.body.mealItem;
-			console.log(req.body)
+			console.log(req.body);
 			console.log(new mongoose.Types.ObjectId(newMealItem));
-			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { $addToSet: { Meal_Items: [new mongoose.Types.ObjectId(newMealItem)] } });
+			await menuTable.findOneAndUpdate(
+				{ Mess: userMess, Day: day, MealType: mealType },
+				{
+					$addToSet: {
+						Meal_Items: [new mongoose.Types.ObjectId(newMealItem)],
+					},
+				}
+			);
 			const val1 = myCache.del("manTT");
-			const val2 = myCache.del("userTT")
+			const val2 = myCache.del("userTT");
 			return res.send("Inserted").status(200);
 		}
 	} catch (error) {
@@ -66,24 +80,33 @@ const getMenuItems = async (mealItems: any[]) => {
 	for (let i = 0; i < mealItems.length; i++) {
 		let mealDetails = await mealItem.findById(mealItems[i]);
 		if (mealDetails) {
-			menuItems.concat({ "Name": mealDetails.Name, "Image": mealDetails.Image });
+			menuItems.concat({
+				Name: mealDetails.Name,
+				Image: mealDetails.Image,
+			});
 		}
 	}
 	return menuItems;
-}
-
+};
 
 const makeMenuDay = (allTimeTable: any[]) => {
 	let res: any[] = [];
 	for (let i = 0; i < allTimeTable.length; i++) {
 		let items = getMenuItems(allTimeTable[i].Meal_Items);
-		res.concat({ "Day": allTimeTable[i].Day, "MealType": allTimeTable[i].MealType, "Items": items.toString() });
+		res.concat({
+			Day: allTimeTable[i].Day,
+			MealType: allTimeTable[i].MealType,
+			Items: items.toString(),
+		});
 	}
 	return res;
-}
+};
 
-
-export const managerTimeTable = async (req: any, res: Response, next: NextFunction) => {
+export const managerTimeTable = async (
+	req: any,
+	res: Response,
+	next: NextFunction
+) => {
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
@@ -97,18 +120,18 @@ export const managerTimeTable = async (req: any, res: Response, next: NextFuncti
 				let allTimeTable = await menuTable.find({ Mess: userMess });
 				ttSer = await Promise.all(
 					allTimeTable.map(async (ele) => {
-					  return {
-						id: ele.id,
-						Day: ele.Day,
-						Type: ele.MealType,
-						Items: await Promise.all(
-							ele.Meal_Items.map(async (foodId) => {
-							return await mealItem.findById(foodId);
-						  })
-						)
-					  }
+						return {
+							id: ele.id,
+							Day: ele.Day,
+							Type: ele.MealType,
+							Items: await Promise.all(
+								ele.Meal_Items.map(async (foodId) => {
+									return await mealItem.findById(foodId);
+								})
+							),
+						};
 					})
-				  )
+				);
 				let success = myCache.set("manTT", ttSer, 3000);
 				if (success) {
 					console.log("cached the tt");
@@ -122,9 +145,13 @@ export const managerTimeTable = async (req: any, res: Response, next: NextFuncti
 		res.send("Unexpected Error").status(501);
 		console.log(e);
 	}
-}
+};
 
-export const deleteTimeTableHandler = async (req: any, res: Response, next: NextFunction) => {
+export const deleteTimeTableHandler = async (
+	req: any,
+	res: Response,
+	next: NextFunction
+) => {
 	let data = req.user;
 	try {
 		let currUser = await user.findOne({ Email: data.email });
@@ -135,11 +162,20 @@ export const deleteTimeTableHandler = async (req: any, res: Response, next: Next
 			let day = req.body.day;
 			let mealType = req.body.mealType;
 			let delMealItem = req.body.mealItem;
-			const allFoodItems = await menuTable.findOne({ Mess: userMess, Day: day, MealType: mealType });
-			console.log(allFoodItems?.Meal_Items)
-			const filterItems = allFoodItems?.Meal_Items.filter((objItemId) => { return objItemId._id != delMealItem });
+			const allFoodItems = await menuTable.findOne({
+				Mess: userMess,
+				Day: day,
+				MealType: mealType,
+			});
+			console.log(allFoodItems?.Meal_Items);
+			const filterItems = allFoodItems?.Meal_Items.filter((objItemId) => {
+				return objItemId._id != delMealItem;
+			});
 			console.log(filterItems);
-			await menuTable.findOneAndUpdate({ Mess: userMess, Day: day, MealType: mealType }, { Meal_Items: filterItems });
+			await menuTable.findOneAndUpdate(
+				{ Mess: userMess, Day: day, MealType: mealType },
+				{ Meal_Items: filterItems }
+			);
 			return res.send("Deleted").status(200);
 		}
 	} catch (err) {
@@ -157,7 +193,7 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 			Title: title,
 			Message: body,
 			Date: new Date(),
-			readBy: []
+			readBy: [],
 		});
 		const tokens = await notificationToken.find();
 		const tokenList = tokens.map((token) => token.Token);
@@ -166,13 +202,11 @@ export const makeAnnouncements = async (req: any, res: Response) => {
 			await sendNotification(tokenList[i], title, body);
 		}
 		return res.status(200).send("Notification Sent");
-	}
-	catch (err) {
+	} catch (err) {
 		console.log(err);
 		return res.status(500).send("Internal Server Error");
 	}
 };
-
 
 export const floatFeedbackForm = async (req: any, res: Response) => {
 	const { title, description } = req.body;
@@ -185,7 +219,7 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 			Title: title,
 			Description: description,
 			FormStartDate: startDate,
-			FormEndDate: endDate
+			FormEndDate: endDate,
 		});
 		const tokens = await notificationToken.find();
 		const tokenList = tokens.map((token) => token.Token);
@@ -198,9 +232,7 @@ export const floatFeedbackForm = async (req: any, res: Response) => {
 		console.log(err);
 		return res.status(500).send("Internal Server Error");
 	}
-}
-
-
+};
 
 export const getAllFeedbackForms = async (req: any, res: Response) => {
 	try {
@@ -214,7 +246,7 @@ export const getAllFeedbackForms = async (req: any, res: Response) => {
 		console.log(err);
 		return res.status(500).send("Internal Server Error");
 	}
-}
+};
 
 export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
 	try {
@@ -226,40 +258,41 @@ export const getFeedbackFormSubmissions = async (req: any, res: Response) => {
 		console.log(err);
 		return res.status(500).send("Internal Server Error");
 	}
-}
+};
 
 export const getAllFoodItems = async (req: any, res: Response) => {
 	try {
-		const foodItems = await mealItem.find().sort('Name');
+		const foodItems = await mealItem.find().sort("Name");
 		let allItemNames = [];
 		for (let i = 0; i < foodItems.length; i++) {
-			allItemNames.push({ "Name": foodItems[i].Name, "Id": foodItems[i]._id, "Img": foodItems[i].Image });
+			allItemNames.push({
+				Name: foodItems[i].Name,
+				Id: foodItems[i]._id,
+				Img: foodItems[i].Image,
+			});
 		}
 		return res.send(allItemNames).status(200);
 	} catch (err) {
 		console.log(err);
-		return res.send({ "Error": "Internal Server Error" }).status(501);
+		return res.send({ Error: "Internal Server Error" }).status(501);
 	}
-}
-
+};
 
 const __initItemRating = async (mess: any, foodItem: string) => {
 	await foodItemRatings.create({
 		Mess: new mongoose.Types.ObjectId(mess),
-		FoodItem: new mongoose.Types.ObjectId(foodItem)
+		FoodItem: new mongoose.Types.ObjectId(foodItem),
 	});
-}
-
+};
 
 const detailOneItem = async (mealItemId: any) => {
 	let menuItems = {};
 	let mealDetails = await mealItem.findById(mealItemId);
 	if (mealDetails) {
-		menuItems = { "Name": mealDetails.Name, "Image": mealDetails.Image };
+		menuItems = { Name: mealDetails.Name, Image: mealDetails.Image };
 	}
 	return menuItems;
-}
-
+};
 
 export const getItemRating = async (req: any, res: Response) => {
 	let data = req.user;
@@ -268,7 +301,7 @@ export const getItemRating = async (req: any, res: Response) => {
 		if (!currUser) {
 			return res.status(404).send("User Not found");
 		}
-		console.log(req.body);
+		// console.log(req.body);
 		let itemId = new mongoose.Types.ObjectId(req.body.itemId);
 		let mess = currUser.Eating_Mess;
 		let findRating = await foodItemRatings.find({ Mess: mess });
@@ -277,13 +310,12 @@ export const getItemRating = async (req: any, res: Response) => {
 		}
 		const opc = await detailOneItem(itemId);
 		console.log(opc);
-		return res.status(201).send(findRating)
+		return res.status(201).send(findRating);
 	} catch (err) {
 		console.log(err);
 		res.status(501).send("Internal Error");
 	}
-}
-
+};
 
 export const getTimeSeries = async (req: any, res: Response) => {
 	let data = req.user;
@@ -299,7 +331,7 @@ export const getTimeSeries = async (req: any, res: Response) => {
 		console.log(err);
 		res.status(501).send("Internal Server Error");
 	}
-}
+};
 
 export const addTimeSeries = async (req: any, res: Response) => {
 	const data = req.user;
@@ -317,7 +349,7 @@ export const addTimeSeries = async (req: any, res: Response) => {
 				Date: dateString,
 				FoodItemId: foodItemId,
 				Rating: rating,
-				NoOfReviews: numberOfRev
+				NoOfReviews: numberOfRev,
 			});
 			console.log(result);
 			return res.send("Data Added Successfully").status(200);
@@ -325,4 +357,4 @@ export const addTimeSeries = async (req: any, res: Response) => {
 	} catch {
 		res.send("Internal Server Error").status(501);
 	}
-}
+};

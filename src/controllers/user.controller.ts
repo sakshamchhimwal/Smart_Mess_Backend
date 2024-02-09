@@ -136,10 +136,11 @@ export const giveRating = async (req: any, res: Response) => {
         { FoodItem: foodId, Mess: eatingMess },
         { Rating: newRating, NumberOfReviews: currNumReviewes! + 1 }
       );
-      return res.send("Updated").status(200);
+      return res.status(200).send({message:"Updated"});
     }
   } catch (err) {
-    return res.send("Interal Server Error").status(501);
+    console.log("Error giveRating",err);
+    return res.status(501).send("Interal Server Error");
   }
 };
 
@@ -385,7 +386,7 @@ export const submitFoodReview = async (req: any, res: Response) => {
             }
           }
         });
-        return res.send("FeedBack Added").status(200);
+        return res.send({message:"FeedBack Added"}).status(200);
       } else {
         const makeUpdate = await dateWiseUserFeedback.create({
           userId: currUser._id,
@@ -396,15 +397,15 @@ export const submitFoodReview = async (req: any, res: Response) => {
             "comments": comments
           }]
         });
-        return res.send("Feedback Created And FeedBack Added").status(200);
+        return res.status(200).send("Feedback Created And FeedBack Added");
       }
     } catch (err) {
       console.log("Err in Updating/Adding");
       console.log(err);
-      return res.send("Internal Server Error").status(501);
+      return res.status(501).send("Internal Server Error");
     }
   } catch (err) {
     console.log(err);
-    return res.send("Internal Server Error").status(501);
+    return res.status(501).send("Internal Server Error");
   }
 }
