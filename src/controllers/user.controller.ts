@@ -20,7 +20,6 @@ import NodeCache from "node-cache";
 import dateWiseUserFeedback from "../models/dateWiseUserFeedback";
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
-
 const getItemByID = async (itemId: any) => {
   let eleDetails = await mealItem.findById(itemId);
   return {
@@ -54,13 +53,13 @@ export const userTimeTable = async (
               Day: ele.Day,
               Type: ele.MealType,
               Items: await Promise.all(
-                  ele.Meal_Items.map(async (foodId) => {
+                ele.Meal_Items.map(async (foodId) => {
                   return await mealItem.findById(foodId);
                 })
-              )
-            }
+              ),
+            };
           })
-        )
+        );
         let success = myCache.set("userTT", ttSer, 3000);
         if (success) {
           console.log("cached the tt");
@@ -136,10 +135,10 @@ export const giveRating = async (req: any, res: Response) => {
         { FoodItem: foodId, Mess: eatingMess },
         { Rating: newRating, NumberOfReviews: currNumReviewes! + 1 }
       );
-      return res.status(200).send({message:"Updated"});
+      return res.status(200).send({ message: "Updated" });
     }
   } catch (err) {
-    console.log("Error giveRating",err);
+    console.log("Error giveRating", err);
     return res.status(501).send("Interal Server Error");
   }
 };
@@ -200,7 +199,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
   try {
     const currUser: any = await user.findOne({ Email: req.user.email });
     const allNotifications = await notifications.find();
-
+    // console.log(allNotifications);
     const announcementResponse: any = allNotifications.map((notification) => ({
       _id: notification._id,
       Title: notification.Title,
@@ -243,7 +242,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
     // console.log(response);
     if (response) {
       response.sort((a: any, b: any) => {
-        return b.sortParam - a.sortParam;
+        return b ? b.sortParam - a.sortParam : 0;
       });
     }
     return res.status(200).send(response);
@@ -254,6 +253,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
 };
 
 export const makeRead = async (req: any, res: Response) => {
+  console.log(req);
   try {
     // const email = ('user' in req) ? req.user.email : null;
     const currUser: any = await user.findOne({ Email: req.user.email });
@@ -327,15 +327,12 @@ export const submitFeedback = async (req: any, res: Response) => {
   }
 };
 
-
-
 const makeDate = (date: Date) => {
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   return `${year}-${month}-${day}`;
-}
-
+};
 
 export const getUserFoodReview = async (req: any, res: Response) => {
   try {
@@ -346,18 +343,17 @@ export const getUserFoodReview = async (req: any, res: Response) => {
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
-      date: date
+      date: date,
     });
     if (isPresent) {
-      return res.send(isPresent.ratings).status(200)
+      return res.send(isPresent.ratings).status(200);
     } else {
       return res.send([]).status(204);
     }
   } catch (err) {
     return res.send("Intrnal Server error").status(501);
   }
-}
-
+};
 
 export const submitFoodReview = async (req: any, res: Response) => {
   try {
@@ -370,32 +366,37 @@ export const submitFoodReview = async (req: any, res: Response) => {
     const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
-      date: date
+      date: date,
     });
     try {
       if (isPresent) {
-        const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate({
-          userId: currUser._id,
-          date: date
-        }, {
-          $push: {
-            ratings: {
-              "foodId": id,
-              "rating": value,
-              "comments": comments
-            }
+        const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate(
+          {
+            userId: currUser._id,
+            date: date,
+          },
+          {
+            $push: {
+              ratings: {
+                foodId: id,
+                rating: value,
+                comments: comments,
+              },
+            },
           }
-        });
-        return res.send({message:"FeedBack Added"}).status(200);
+        );
+        return res.send({ message: "FeedBack Added" }).status(200);
       } else {
         const makeUpdate = await dateWiseUserFeedback.create({
           userId: currUser._id,
           date: date,
-          ratings: [{
-            "foodId": id,
-            "rating": value,
-            "comments": comments
-          }]
+          ratings: [
+            {
+              foodId: id,
+              rating: value,
+              comments: comments,
+            },
+          ],
         });
         return res.status(200).send("Feedback Created And FeedBack Added");
       }
@@ -408,4 +409,4 @@ export const submitFoodReview = async (req: any, res: Response) => {
     console.log(err);
     return res.status(501).send("Internal Server Error");
   }
-}
+};
