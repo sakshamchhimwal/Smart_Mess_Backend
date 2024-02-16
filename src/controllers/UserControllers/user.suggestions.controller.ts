@@ -27,15 +27,15 @@ export const getSuggestions = async (
 				.skip((currPage - 1) * LIMIT)
 				.limit(LIMIT)
 				.populate("userId", "Username Image")
-				.populate("upvotes downvotes","Username")
+				.populate("upvotes downvotes", "Username")
 				.exec();
 			if (paginatedSuggestions.length > 0) {
-				return res.send({
+				return res.status(200).send({
 					suggestions: paginatedSuggestions,
-					hasNext: true,
+					hasNext: paginatedSuggestions.length === LIMIT,
 				});
 			}
-			return res.send({ suggestions: [], hasNext: false }).status(204);
+			return res.status(204).send({ suggestions: [], hasNext: false });
 		}
 	} catch (err) {
 		console.log(err);
@@ -58,21 +58,21 @@ export const postSuggestion = async (
 		}
 		const messId = currUser.Eating_Mess;
 		const newSuggestion = req.body;
-		// console.log(req.body);
+		console.log(req.body);
 		const addSuggestion = await SuggestionsModel.create({
 			messId,
 			userId: currUser._id,
 			...newSuggestion,
-			createdAt: Date.now()
+			createdAt: Date.now(),
 		});
 		if (addSuggestion) {
 			return res
-				.send({ Message: "Suggestion added successfully" })
-				.status(200);
+				.status(200)
+				.send({ Message: "Suggestion added successfully" });
 		} else {
 			return res
-				.send({ Message: "Failure suggestion not added" })
-				.status(400);
+				.status(400)
+				.send({ Message: "Failure suggestion not added" });
 		}
 	} catch (err) {
 		console.log(err);
@@ -110,9 +110,9 @@ export const patchSuggestion = async (
 		);
 
 		if (updateSuggestion.modifiedCount > 0) {
-			res.send({}).status(204);
+			res.status(204).send({});
 		} else {
-			res.send({ message: "Suggestion Not Found" }).status(404);
+			res.status(404).send({ message: "Suggestion Not Found" });
 		}
 	} catch (err) {
 		console.error(err);
@@ -141,9 +141,9 @@ export const deleteSuggestion = async (
 		});
 
 		if (deletedSuggestion.deletedCount > 0) {
-			res.send({ message: "Sugestion deleted successfully" }).status(200);
+			res.status(200).send({ message: "Sugestion deleted successfully" });
 		} else {
-			res.send({ message: "Suggestion Not Found" }).status(404);
+			res.status(404).send({ message: "Suggestion Not Found" });
 		}
 	} catch (err) {
 		console.error(err);

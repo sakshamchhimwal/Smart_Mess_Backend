@@ -95,7 +95,7 @@ const io = new Server(server,{
 io.on("connection", (socket) => {
 	console.log("connected ",socket.id);
 	socket.on("vote-cast", (vote) => {
-		console.log(vote);
+		// console.log(vote);
 		socket.emit("vote-update", vote);
 	});
 });
