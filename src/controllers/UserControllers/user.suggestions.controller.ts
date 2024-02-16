@@ -135,13 +135,14 @@ export const deleteSuggestion = async (
 		}
 
 		const suggestionId = req.query.suggestionId;
-		const deletedSuggestion = await SuggestionsModel.deleteOne({
+		const deletedSuggestion = await SuggestionsModel.findOneAndDelete({
 			_id: suggestionId,
 			userId: currUser._id,
 		});
 
-		if (deletedSuggestion.deletedCount > 0) {
-			res.status(200).send({ message: "Sugestion deleted successfully" });
+		if (deletedSuggestion) {
+			// console.log(deletedSuggestion);
+			res.status(200).send({ message: "Sugestion deleted successfully", deletedSuggestion });
 		} else {
 			res.status(404).send({ message: "Suggestion Not Found" });
 		}

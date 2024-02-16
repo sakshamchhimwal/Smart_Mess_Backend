@@ -39,6 +39,7 @@ const limiter = rateLimit({
 
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { startIOLoop } from "./services/sockets";
 
 var app = express();
 
@@ -86,19 +87,13 @@ const server = app.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
 });
 
-const io = new Server(server,{
-	cors:{
-		origin:"*"
+const io = new Server(server, {
+	cors: {
+		origin: "*"
 	}
 });
 
-io.on("connection", (socket) => {
-	console.log("connected ",socket.id);
-	socket.on("vote-cast", (vote) => {
-		// console.log(vote);
-		socket.emit("vote-update", vote);
-	});
-});
+startIOLoop(io);
 
 //exporting app to be used in test
-export default app;
+// export default app;
