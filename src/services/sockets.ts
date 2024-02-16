@@ -5,14 +5,14 @@ export const startIOLoop = (io: Server) => {
         console.log("connected ", socket.id);
         socket.on("vote-cast", (vote: any) => {
             // console.log({vote});
-            socket.emit("vote-update", vote);
+            io.emit("vote-update", vote);
         });
         socket.on("delete-suggestion", (deletedSuggestion: any) => {
             // console.log({deletedSuggestion});
-            socket.emit("delete-suggestion", deletedSuggestion);
+            io.emit("delete-suggestion", deletedSuggestion);
         })
         socket.on("new-post", () => {
-            socket.emit("new-post");
+            io.emit("new-post");
         })
     });
 }
