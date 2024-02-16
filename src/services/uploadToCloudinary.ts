@@ -41,6 +41,7 @@ export const uploadToCloudinary = async (
 		next();
 	} catch (err) {
 		const mute = err;
+		console.log({cloudinaryError:err});
 		console.error("Error Occured in Cloudinary Upload");
 		return next(createHttpError(500));
 	}

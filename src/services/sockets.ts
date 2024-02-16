@@ -8,8 +8,11 @@ export const startIOLoop = (io: Server) => {
             socket.emit("vote-update", vote);
         });
         socket.on("delete-suggestion", (deletedSuggestion: any) => {
-            console.log({deletedSuggestion});
+            // console.log({deletedSuggestion});
             socket.emit("delete-suggestion", deletedSuggestion);
+        })
+        socket.on("new-post", () => {
+            socket.emit("new-post");
         })
     });
 }
