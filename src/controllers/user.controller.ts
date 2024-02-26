@@ -199,7 +199,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
 	try {
 		const currUser: any = await user.findOne({ Email: req.user.email });
 		const allNotifications = await notifications.find();
-
+    // console.log(allNotifications);
 		const announcementResponse: any = allNotifications.map(
 			(notification) => ({
 				_id: notification._id,
@@ -246,7 +246,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
 		if (response) {
 			response
 				.sort((a: any, b: any) => {
-					return b?.sortParam - a?.sortParam;
+					return b ? b?.sortParam - a?.sortParam : 0;
 				})
 				response  = response.filter((ele: any) => {
 					if (ele !== null) return ele;

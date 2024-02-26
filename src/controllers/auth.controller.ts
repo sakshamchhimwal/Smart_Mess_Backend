@@ -5,6 +5,7 @@ import user_model from '../models/user';
 import { createSession } from '../services/createSession';
 import { JWTLoadData } from '../Interface/interfaces';
 import { sendNotification } from '../config/firebaseWeb';
+import Analytics from '../models/analytics';
 
 const webSigninHandler = async (req: Request, res: Response): Promise<Response | undefined> => {
     try {
@@ -35,6 +36,27 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                     user = newUser;
                     isNewUser = true;
                 }
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+        
+                const analyticsRecord = await Analytics.findOne({ date: today });
+                if (analyticsRecord) {
+                    // If record exists for today and the user's ID is not in visitorIds, add it
+                    if (!analyticsRecord.visitorIds.includes(user._id.toString())) {
+                        analyticsRecord.visitorIds.push(user._id.toString());
+                        analyticsRecord.uniqueVisitorsCount += 1;
+                        await analyticsRecord.save();
+                        console.log("Updated analytics record for today:", analyticsRecord); // Log updated analytics record
+                    }
+                } else {
+                    // If no record exists for today, create a new one
+                    const newRecord =   await Analytics.create({
+                        date: today,
+                        uniqueVisitorsCount: 1,
+                        visitorIds: [user._id.toString()]
+                    });
+                    console.log("Created new analytics record for today:" , newRecord);
+                }
                 // console.log(user);
                 //create session
                 const payload: JWTLoadData = {
@@ -47,6 +69,7 @@ const webSigninHandler = async (req: Request, res: Response): Promise<Response |
                 const token = createSession(payload);
                 if (isNewUser) return res.status(201).json({ token, user });
                 return res.status(200).json({ token, user });
+                //
             } catch (err) {
                 console.log(err);
                 return res.status(500).send("Some Error Occured while fetching user info");
