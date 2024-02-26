@@ -90,3 +90,5 @@ export const voteSuggestion = async (
     next(createHttpError(500, 'Internal Server Error'))
   }
 }
+
+
