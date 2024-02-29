@@ -33,46 +33,48 @@ export const userTimeTable = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	let data = req.user;
-	try {
-		let currUser: userResult = await (<userResult>(
-			(<unknown>user.findOne({ Email: data.email }))
-		));
-		if (!currUser) {
-			res.status(404).send("User not found");
-		} else {
-			let value = myCache.get("userTT");
-			if (value === undefined) {
-				let userMess: any = currUser.Eating_Mess;
-				let ttSer = [];
-				let allTimeTable = await menuTable.find({ Mess: userMess });
-				ttSer = await Promise.all(
-					allTimeTable.map(async (ele) => {
-						return {
-							id: ele.id,
-							Day: ele.Day,
-							Type: ele.MealType,
-							Items: await Promise.all(
-								ele.Meal_Items.map(async (foodId) => {
-									return await mealItem.findById(foodId);
-								})
-							),
-						};
-					})
-				);
-				let success = myCache.set("userTT", ttSer, 3000);
-				if (success) {
-					console.log("cached the tt");
-				}
-				return res.send(ttSer);
-			} else {
-				return res.send(value).status(216);
-			}
-		}
-	} catch (e) {
-		res.send("Unexpected Error").status(501);
-		console.log(e);
-	}
+
+  let data = req.user;
+  try {
+    let currUser: userResult = await (<userResult>(
+      (<unknown>user.findOne({ Email: data.email }))
+    ));
+    if (!currUser) {
+      res.status(404).send("User not found");
+    } else {
+      let value = myCache.get("userTT");
+      if (value === undefined) {
+        let userMess: any = currUser.Eating_Mess;
+        let ttSer = [];
+        let allTimeTable = await menuTable.find({ Mess: userMess });
+        ttSer = await Promise.all(
+          allTimeTable.map(async (ele) => {
+            return {
+              id: ele.id,
+              Day: ele.Day,
+              Type: ele.MealType,
+              Items: await Promise.all(
+                ele.Meal_Items.map(async (foodId) => {
+                  return await mealItem.findById(foodId);
+                })
+              ),
+            };
+          })
+        );
+        let success = myCache.set("userTT", ttSer, 3000);
+        if (success) {
+          console.log("cached the tt");
+        }
+        return res.send(ttSer);
+      } else {
+        return res.send(value).status(216);
+      }
+    }
+  } catch (e) {
+    res.send("Unexpected Error").status(501);
+    console.log(e);
+  }
+
 };
 
 export const userDetails = async (
@@ -105,42 +107,43 @@ const __initItemRating = async (mess: any, foodItem: string) => {
 };
 
 export const giveRating = async (req: any, res: Response) => {
-	let data = req.user;
-	try {
-		let currUser = await user.findOne({ Email: data.email });
-		if (!currUser) {
-			return res.status(404).send("User Not Found");
-		} else {
-			console.log(req.body);
-			let foodId = req.body.foodId;
-			let eatingMess = currUser.Eating_Mess;
-			let rating = req.body.rating;
-			let currItemRating = await foodItemRatings.findOne({
-				FoodItem: foodId,
-				Mess: eatingMess,
-			});
-			if (!currItemRating) {
-				await __initItemRating(eatingMess?.toString(), foodId);
-			}
-			currItemRating = await foodItemRatings.findOne({
-				FoodItem: foodId,
-				Mess: eatingMess,
-			});
-			console.log(currItemRating);
-			let currRating = currItemRating?.Rating;
-			let currNumReviewes = currItemRating?.NumberOfReviews;
-			let newRating =
-				(currRating! * currNumReviewes! + rating) /
-				(currNumReviewes! + 1);
-			await foodItemRatings.findOneAndUpdate(
-				{ FoodItem: foodId, Mess: eatingMess },
-				{ Rating: newRating, NumberOfReviews: currNumReviewes! + 1 }
-			);
-			return res.send("Updated").status(200);
-		}
-	} catch (err) {
-		return res.send("Interal Server Error").status(501);
-	}
+
+  let data = req.user;
+  try {
+    let currUser = await user.findOne({ Email: data.email });
+    if (!currUser) {
+      return res.status(404).send("User Not Found");
+    } else {
+      console.log(req.body);
+      let foodId = req.body.foodId;
+      let eatingMess = currUser.Eating_Mess;
+      let rating = req.body.rating;
+      let currItemRating = await foodItemRatings.findOne({
+        FoodItem: foodId,
+        Mess: eatingMess,
+      });
+      if (!currItemRating) {
+        await __initItemRating(eatingMess?.toString(), foodId);
+      }
+      currItemRating = await foodItemRatings.findOne({
+        FoodItem: foodId,
+        Mess: eatingMess,
+      });
+      console.log(currItemRating);
+      let currRating = currItemRating?.Rating;
+      let currNumReviewes = currItemRating?.NumberOfReviews;
+      let newRating =
+        (currRating! * currNumReviewes! + rating) / (currNumReviewes! + 1);
+      await foodItemRatings.findOneAndUpdate(
+        { FoodItem: foodId, Mess: eatingMess },
+        { Rating: newRating, NumberOfReviews: currNumReviewes! + 1 }
+      );
+      return res.status(200).send({ message: "Updated" });
+    }
+  } catch (err) {
+    console.log("Error giveRating", err);
+    return res.status(501).send("Interal Server Error");
+  }
 };
 
 export const getLatestUpdates = async (req: any, res: Response) => {
@@ -196,89 +199,82 @@ export const androidAddNotificationTokenHandler = async (
 };
 
 export const getAllNotifications = async (req: any, res: Response) => {
-	try {
-		const currUser: any = await user.findOne({ Email: req.user.email });
-		const allNotifications = await notifications.find();
 
-		const announcementResponse: any = allNotifications.map(
-			(notification) => ({
-				_id: notification._id,
-				Title: notification.Title,
-				Message: notification.Message,
-				Date: notification.Date,
-				Attachment: notification.Attachment,
-				read: notification.readBy.includes(currUser._id),
-				messageType: "announcement",
-				sortParam: notification.Date,
-			})
-		);
-		const allFeedbacks = await feedbackForm.find();
-		//first check whether the user has submitted the feedback or not
-		//if yes then don't show the feedback form
-		//also check whether the feedback form is active or not
-		//the feedback form is active if the current date is between the start and end date
-		let feedbackResponse: any = await Promise.all(
-			allFeedbacks.map(async (feedback) => {
-				if (Date.now() > feedback.FormEndDate.getTime()) return null;
-				if (
-					await actualFeedback.findOne({
-						Email: currUser.Email,
-						FormID: feedback._id,
-					})
-				)
-					return null;
-				return {
-					_id: feedback._id,
-					Title: feedback.Title,
-					Description: feedback.Description,
-					FormStartDate: feedback.FormStartDate,
-					FormEndDate: feedback.FormEndDate,
-					messageType: "feedback", // render
-					sortParam: feedback.FormStartDate,
-				};
-			})
-		);
-		let response = null;
-		if (feedbackResponse) response = feedbackResponse;
-		if (announcementResponse)
-			response = response.concat(announcementResponse);
-		// console.log(response);
-		if (response) {
-			response
-				.sort((a: any, b: any) => {
-					return b?.sortParam - a?.sortParam;
-				})
-				response  = response.filter((ele: any) => {
-					if (ele !== null) return ele;
-				});
-		}
-		return res.status(200).send(response);
-	} catch (err) {
-		console.log(err);
-		return res.status(500).send("Internal Server Error");
-	}
+  try {
+    const currUser: any = await user.findOne({ Email: req.user.email });
+    const allNotifications = await notifications.find();
+    // console.log(allNotifications);
+    const announcementResponse: any = allNotifications.map((notification) => ({
+      _id: notification._id,
+      Title: notification.Title,
+      Message: notification.Message,
+      Date: notification.Date,
+      Attachment: notification.Attachment,
+      read: notification.readBy.includes(currUser._id),
+      messageType: "announcement",
+      sortParam: notification.Date,
+    }));
+    const allFeedbacks = await feedbackForm.find();
+    //first check whether the user has submitted the feedback or not
+    //if yes then don't show the feedback form
+    //also check whether the feedback form is active or not
+    //the feedback form is active if the current date is between the start and end date
+    let feedbackResponse: any = await Promise.all(
+      allFeedbacks.map(async (feedback) => {
+        if (Date.now() > feedback.FormEndDate.getTime()) return null;
+        if (
+          await actualFeedback.findOne({
+            Email: currUser.Email,
+            FormID: feedback._id,
+          })
+        )
+          return null;
+        return {
+          _id: feedback._id,
+          Title: feedback.Title,
+          Description: feedback.Description,
+          FormStartDate: feedback.FormStartDate,
+          FormEndDate: feedback.FormEndDate,
+          messageType: "feedback", // render
+          sortParam: feedback.FormStartDate,
+        };
+      })
+    );
+    let response = null;
+    if (feedbackResponse) response = feedbackResponse;
+    if (announcementResponse) response = response.concat(announcementResponse);
+    // console.log(response);
+    if (response) {
+      response.sort((a: any, b: any) => {
+        return b ? b.sortParam - a.sortParam : 0;
+      });
+    }
+    return res.status(200).send(response);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal Server Error");
+  }
 };
 
 export const makeRead = async (req: any, res: Response) => {
-	try {
-		// const email = ('user' in req) ? req.user.email : null;
-		const currUser: any = await user.findOne({ Email: req.user.email });
-		const notifId = req.body.notifId;
-		const notif = await notifications.findOne({ _id: notifId });
-		if (notif) {
-			await notifications.findByIdAndUpdate(notif._id, {
-				$addToSet: {
-					readBy: [new mongoose.Types.ObjectId(currUser._id)],
-				},
-			});
-			return res.send("Read").status(200);
-		} else {
-			return res.send("Unexpected Error").status(404);
-		}
-	} catch (err) {
-		console.log(err);
-		return res.status(501).send("Internal Server Error");
-	}
+  console.log(req);
+  try {
+    // const email = ('user' in req) ? req.user.email : null;
+    const currUser: any = await user.findOne({ Email: req.user.email });
+    const notifId = req.body.notifId;
+    const notif = await notifications.findOne({ _id: notifId });
+    if (notif) {
+      await notifications.findByIdAndUpdate(notif._id, {
+        $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
+      });
+      return res.send("Read").status(200);
+    } else {
+      return res.send("Unexpected Error").status(404);
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(501).send("Internal Server Error");
+  }
 };
 
 export const makeAllRead = async (req: any, res: Response) => {
@@ -338,87 +334,86 @@ export const submitFeedback = async (req: any, res: Response) => {
 };
 
 const makeDate = (date: Date) => {
-	const day = date.getDate();
-	const month = date.getMonth() + 1;
-	const year = date.getFullYear();
-	return `${year}-${month}-${day}`;
+
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
 };
 
 export const getUserFoodReview = async (req: any, res: Response) => {
-	try {
-		const currUser = await user.findOne({ Email: req.user.email });
-		if (!currUser) {
-			return res.send("No User Exists").status(404);
-		}
-		const date = makeDate(new Date(Date.now()));
-		const isPresent = await dateWiseUserFeedback.findOne({
-			userId: currUser._id,
-			date: date,
-		});
-		if (isPresent) {
-			return res.send(isPresent.ratings).status(200);
-		} else {
-			return res.send([]).status(204);
-		}
-	} catch (err) {
-		return res.send("Intrnal Server error").status(501);
-	}
+  try {
+    const currUser = await user.findOne({ Email: req.user.email });
+    if (!currUser) {
+      return res.send("No User Exists").status(404);
+    }
+    const date = makeDate(new Date(Date.now()));
+    const isPresent = await dateWiseUserFeedback.findOne({
+      userId: currUser._id,
+      date: date,
+    });
+    if (isPresent) {
+      return res.send(isPresent.ratings).status(200);
+    } else {
+      return res.send([]).status(204);
+    }
+  } catch (err) {
+    return res.send("Intrnal Server error").status(501);
+  }
 };
 
 export const submitFoodReview = async (req: any, res: Response) => {
-	try {
-		const currUser = await user.findOne({ Email: req.user.email });
-		if (!currUser) {
-			return res.send("No User Exists").status(403);
-		}
-		const { id, value, comments } = req.body;
-		console.log("Body:", req.body);
-		const date = makeDate(new Date(Date.now()));
-		const isPresent = await dateWiseUserFeedback.findOne({
-			userId: currUser._id,
-			date: date,
-		});
-		try {
-			if (isPresent) {
-				const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate(
-					{
-						userId: currUser._id,
-						date: date,
-					},
-					{
-						$push: {
-							ratings: {
-								foodId: id,
-								rating: value,
-								comments: comments,
-							},
-						},
-					}
-				);
-				return res.send("FeedBack Added").status(200);
-			} else {
-				const makeUpdate = await dateWiseUserFeedback.create({
-					userId: currUser._id,
-					date: date,
-					ratings: [
-						{
-							foodId: id,
-							rating: value,
-							comments: comments,
-						},
-					],
-				});
-				return res
-					.send("Feedback Created And FeedBack Added")
-					.status(200);
-			}
-		} catch (err) {
-			console.log("Err in Updating/Adding");
-			console.log(err);
-			return res.send("Internal Server Error").status(501);
-		}
-	} catch (err) {
-		console.log(err);
-		return res.send("Internal Server Error").status(501);
-	}
+  try {
+    const currUser = await user.findOne({ Email: req.user.email });
+    if (!currUser) {
+      return res.send("No User Exists").status(403);
+    }
+    const { id, value, comments } = req.body;
+    console.log("Body:", req.body);
+    const date = makeDate(new Date(Date.now()));
+    const isPresent = await dateWiseUserFeedback.findOne({
+      userId: currUser._id,
+      date: date,
+    });
+    try {
+      if (isPresent) {
+        const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate(
+          {
+            userId: currUser._id,
+            date: date,
+          },
+          {
+            $push: {
+              ratings: {
+                foodId: id,
+                rating: value,
+                comments: comments,
+              },
+            },
+          }
+        );
+        return res.send({ message: "FeedBack Added" }).status(200);
+      } else {
+        const makeUpdate = await dateWiseUserFeedback.create({
+          userId: currUser._id,
+          date: date,
+          ratings: [
+            {
+              foodId: id,
+              rating: value,
+              comments: comments,
+            },
+          ],
+        });
+        return res.status(200).send("Feedback Created And FeedBack Added");
+      }
+    } catch (err) {
+      console.log("Err in Updating/Adding");
+      console.log(err);
+      return res.status(501).send("Internal Server Error");
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(501).send("Internal Server Error");
+  }
 };
