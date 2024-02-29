@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_KEY;
 
 export const createSession = (data: JWTLoadData) => {
   const token = jwt.sign(data, JWT_SECRET as string, {
-    expiresIn: '1d',
+    expiresIn: '30d',
   });
   return token;
 }
