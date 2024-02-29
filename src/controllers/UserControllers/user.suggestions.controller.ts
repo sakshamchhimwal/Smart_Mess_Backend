@@ -176,6 +176,7 @@ export const postSuggestionComment = async (
       {
         $push: {
           children: {
+            userId: currUser._id,
             id: newCommentId,
             comment: newComment,
           },
@@ -387,5 +388,46 @@ export const getOneSuggestion = async (
   } catch (err) {
     console.log(err);
     return next(createHttpError(500, "Internal Server Error"));
+  }
+};
+
+export const markAsClosedAdmin = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  const loggedInUserData = req.user;
+  try {
+    const currUser = await UserModel.findOne({
+      Email: loggedInUserData.email,
+    });
+    if (!currUser) {
+      return next(createHttpError(403, "Unauthorized"));
+    } else if (currUser.Role !== "admin" || "secy") {
+      const suggestionId = req.body.suggestionId;
+
+      const updateSuggestion = await SuggestionsModel.updateOne(
+        {
+          _id: suggestionId,
+          userId: currUser._id,
+        },
+        {
+          $set: {
+            status: "closed",
+          },
+        }
+      );
+
+      if (updateSuggestion.modifiedCount > 0) {
+        res.status(204).send({});
+      } else {
+        res.status(404).send({ message: "Suggestion Not Found" });
+      }
+    } else {
+      return next(createHttpError(403, "Unauthorized to perform this action"));
+    }
+  } catch (err) {
+    console.error(err);
+    next(createHttpError(500, "Internal Server Error"));
   }
 };

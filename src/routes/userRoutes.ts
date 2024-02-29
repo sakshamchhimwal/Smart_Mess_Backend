@@ -73,6 +73,7 @@ userRouter.patch("/dashboard/suggestion/comment", voteSuggestionComment);
 // REST Routes
 userRouter.get("/profile/suggestion", getSuggestions);
 userRouter.get("/profile/oneSuggestion", getOneSuggestion);
+
 userRouter.post(
   "/profile/suggestion",
   upload.single("image"),

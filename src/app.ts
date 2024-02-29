@@ -21,8 +21,8 @@ import schedule from "node-schedule";
 import backup from "./config/backupTimeSeriesData";
 
 const job = schedule.scheduleJob("0 23 * * *", async function () {
-	console.log("Backing UP");
-	await backup();
+  console.log("Backing UP");
+  await backup();
 });
 
 // const lob = schedule.scheduleJob('*/1 * * * *', function () {
@@ -30,11 +30,11 @@ const job = schedule.scheduleJob("0 23 * * *", async function () {
 // });
 
 const limiter = rateLimit({
-	windowMs: 5 * 60 * 1000, // 5 minutes
-	limit: 5, // Limit each IP to 5 requests per `window` (here, per 15 minutes).
-	standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	// store: ... , // Use an external store for consistency across multiple server instances.
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  limit: 50, // Limit each IP to 5 requests per `window` (here, per 15 minutes).
+  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Use an external store for consistency across multiple server instances.
 });
 
 import { createServer } from "http";
@@ -67,30 +67,28 @@ app.use("/api/manager", managerRoutes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-	next(createHttpError(404));
+  next(createHttpError(404));
 });
 
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get("env") === "development" ? err : {};
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
-	// render the error page
-	res.status(err.status || 500);
-	res.render("error");
+  // render the error page
+  res.status(err.status || 500);
+  res.render("error");
 });
 
-
-
 const server = app.listen(process.env.PORT, () => {
-	console.log(`Server is running on port ${process.env.PORT}`);
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
 
 const io = new Server(server, {
-	cors: {
-		origin: "*"
-	}
+  cors: {
+    origin: "*",
+  },
 });
 
 startIOLoop(io);

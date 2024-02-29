@@ -30,6 +30,7 @@ const Suggestions = new Schema({
   children: [
     {
       id: { type: Schema.Types.ObjectId, required: true },
+      userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
       upvotes: [
         {
           type: Schema.Types.ObjectId,
@@ -44,7 +45,7 @@ const Suggestions = new Schema({
           default: [],
         },
       ],
-      comment: Schema.Types.String,
+      comment: { type: Schema.Types.String, required: true },
     },
   ],
 
