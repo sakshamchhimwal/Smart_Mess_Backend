@@ -14,8 +14,6 @@ export const startIOLoop = (io: Server) => {
         socket.on("new-post", () => {
             io.emit("new-post");
         })
-
-        
     });
 }
 
