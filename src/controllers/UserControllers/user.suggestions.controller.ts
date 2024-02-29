@@ -242,6 +242,7 @@ export const deleteSuggestionComment = async (
   next: NextFunction
 ) => {
   const loggedInUserData = req.user;
+
   try {
     const currUser = await UserModel.findOne({
       Email: loggedInUserData.email,
@@ -250,9 +251,9 @@ export const deleteSuggestionComment = async (
       return next(createHttpError(403, "Unauthorized"));
     }
 
-    const suggestionId = req.query.suggestionId;
-    const commentId = req.query.commentId;
-
+    const suggestionId = req.body.suggestionId;
+    const commentId = req.body.commentId;
+    console.log(suggestionId, commentId);
     const updateSuggestion = await SuggestionsModel.updateOne(
       {
         _id: suggestionId,

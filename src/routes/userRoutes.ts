@@ -85,7 +85,7 @@ userRouter.delete("/profile/suggestion", deleteSuggestion);
 
 userRouter.post("/profile/suggestion/comment", postSuggestionComment);
 userRouter.patch("/profile/suggestion/comment", patchSuggestionComment);
-userRouter.delete("/profile/suggestion/comment", deleteSuggestionComment);
+userRouter.post("/profile/suggestion/deleteComment", deleteSuggestionComment);
 
 userRouter.patch("/profile/suggestion/markAsClosed", markAsClosed);
 
