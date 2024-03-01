@@ -114,6 +114,7 @@ export const managerTimeTable = async (
       res.status(404).send("User not found");
     } else {
       let value = myCache.get("manTT");
+      // let value = undefined;
       if (value === undefined) {
         let userMess: any = currUser.Eating_Mess;
         let ttSer = [];
