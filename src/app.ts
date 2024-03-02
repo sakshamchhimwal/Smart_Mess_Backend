@@ -15,12 +15,13 @@ import userRouter from "./routes/userRoutes";
 // import { Authorize } from "./middlewares/Authorize";
 import connectDB from "./config/connectDB";
 // import notifications from "./models/notifications";
-import User_Schema from "./models/user"; // Adjust the import path according to your project structure
 import Analytics from "./models/analytics";
+import User_Schema from "./models/user"; // Adjust the import path according to your project structure
 
 import { rateLimit } from "express-rate-limit";
 import schedule from "node-schedule";
 import backup from "./config/backupTimeSeriesData";
+import compression from 'compression'
 
 const job = schedule.scheduleJob("0 23 * * *", async function () {
   console.log("Backing UP");
@@ -39,7 +40,6 @@ const limiter = rateLimit({
   // store: ... , // Use an external store for consistency across multiple server instances.
 });
 
-import { createServer } from "http";
 import { Server } from "socket.io";
 import { startIOLoop } from "./services/sockets";
 
@@ -54,6 +54,7 @@ app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(compression());
 
 //serve files of path /static
 app.use("/api/static", express.static(path.join(__dirname, "..", "public")));
@@ -92,7 +93,7 @@ app.get("/api/userstats", async (req: Request, res: Response) => {
     console.error('Error fetching visitor stats:', error);
     res.status(500).send('Internal Server Error');
   }
-}); 
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
