@@ -12,6 +12,7 @@ export const startIOLoop = (io: Server) => {
             io.emit("delete-suggestion", deletedSuggestion);
         })
         socket.on("new-post", () => {
+            // console.log("new suggestion");
             io.emit("new-post");
         })
     });
