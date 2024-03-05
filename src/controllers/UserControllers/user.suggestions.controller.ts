@@ -379,7 +379,10 @@ export const getOneSuggestion = async (
       _id: suggestionId,
     })
       .populate("userId", "Username Image")
-      .populate("upvotes downvotes", "Username")
+      .populate({
+        path: "children",
+        populate: { path: "userId", select: "Username Image" },
+      })
       .exec();
     if (suggestion) {
       return res.status(200).send({ suggestion });
