@@ -27,9 +27,11 @@ export const getSuggestions = async (
       })
         .skip((currPage - 1) * LIMIT)
         .limit(LIMIT)
+        .sort({ createdAt: -1 })
         .populate("userId", "Username Image")
         .populate("upvotes downvotes", "Username")
         .exec();
+
       if (paginatedSuggestions.length > 0) {
         return res.status(200).send({
           suggestions: paginatedSuggestions,
