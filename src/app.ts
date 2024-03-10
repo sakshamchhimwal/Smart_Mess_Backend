@@ -17,6 +17,7 @@ import connectDB from "./config/connectDB";
 // import notifications from "./models/notifications";
 import Analytics from "./models/analytics";
 import User_Schema from "./models/user"; // Adjust the import path according to your project structure
+import actualFeedback from "./models/actualFeedback";
 
 import { rateLimit } from "express-rate-limit";
 import schedule from "node-schedule";
@@ -92,6 +93,26 @@ app.get("/api/userstats", async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching visitor stats:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/api/average-ratings', async (req, res) => {
+  try {
+    const ratings = await actualFeedback.aggregate([
+      {
+        $group: {
+          _id: null,
+          AverageBreakfastRating: { $avg: "$BreakfastRating" },
+          AverageLunchRating: { $avg: "$LunchRating" },
+          AverageDinnerRating: { $avg: "$DinnerRating" },
+          AverageSnacksRating: { $avg: "$SnacksRating" },
+          AverageMessServiceRating: { $avg: "$MessServiceRating" },
+          AverageHygieneRating: { $avg: "$HygieneRating" },
+        }
+      }
+    ]);
+    res.json(ratings);
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
 

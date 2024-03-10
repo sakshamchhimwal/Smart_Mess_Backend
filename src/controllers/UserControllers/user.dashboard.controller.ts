@@ -19,20 +19,17 @@ export const getAllSuggestions = async (
     }
     if (currUser) {
       const currUserMess = currUser.Eating_Mess
-      const currPage = req.query.page
-      const LIMIT = 10
-      const paginatedSuggestions = await SuggestionModel.find({
+      const suggestions = await SuggestionModel.find({
         messId: currUserMess
       })
-        .skip((currPage - 1) * LIMIT)
-        .limit(LIMIT)
         .populate('userId', 'Username Image')
         .populate('upvotes downvotes', 'Username')
         .exec()
-      if (paginatedSuggestions.length > 0) {
+
+      if (suggestions.length > 0) {
         return res.send({
-          suggestions: paginatedSuggestions,
-          hasNext: paginatedSuggestions.length === LIMIT
+          suggestions,
+          hasNext: false // Since you're fetching all suggestions at once, there's no next page.
         })
       }
       return res.status(204).send({ suggestions: [], hasNext: false })
