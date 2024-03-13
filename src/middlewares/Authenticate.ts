@@ -39,13 +39,13 @@ export const Authenticate = () => {
         }
         // console.log(token);
         if (!token) {
-            res.status(501).send("Token not found");
+            res.status(501).send({error:"TOKEN_NOT_FOUND"});
         } else {
             try {
                 const data: JWTLoadData = verify(token, process.env.JWT_KEY!) as JWTLoadData;
                 const user = await user_model.findOne({ Email: data.user.email });
                 if (!user) {
-                    throw new Error("User not found");
+                    throw new Error("USER_NOT_FOUND");
                 }
     
                 // Assuming user model has an _id field which is common with MongoDB/Mongoose
@@ -56,23 +56,8 @@ export const Authenticate = () => {
                 next();
             } catch (err: any) {
                 console.log(err);
-                res.status(401).send("Unauthorized Access");
+                res.status(401).send({error:"UNAUTHORIZED_ACCESS"});
             }
         }
     }
 }
-
-// if (err.name === "TokenExpiredError") {
-//     const { email, role, time } = err.payload.user;
-//     const payload: JWTLoadData = {
-//         user: {
-//             email,
-//             role,
-//             time: Date.now(),
-//         },
-//     };
-//     const token = createSession(payload);
-//     res.status(440).send({ token });
-// } else {
-//     res.status(401).send("Unauthorized Access");
-// }
