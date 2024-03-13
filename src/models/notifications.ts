@@ -25,7 +25,6 @@ const notification = new Schema({
   // },
   //array of user ids who have read the notification
   readBy: {
-    
     type: [Schema.Types.ObjectId],
     ref: "user",
     required: true,

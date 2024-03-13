@@ -65,8 +65,8 @@ export const addTimeTable = async (
           },
         }
       );
-      const val1 = myCache.del("manTT");
-      const val2 = myCache.del("userTT");
+      myCache.del("manTT");
+      myCache.del("userTT");
       return res.send("Inserted").status(200);
     }
   } catch (error) {
