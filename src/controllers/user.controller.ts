@@ -201,7 +201,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
   try {
     const currUser: any = await user.findOne({ Email: req.user.email });
     const userNotifications = await usernotifications.find({
-      _id: currUser._id,
+      sendTo: currUser._id,
     });
 
     console.log("userNotifications", userNotifications);
