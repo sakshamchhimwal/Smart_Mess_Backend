@@ -201,9 +201,10 @@ export const getAllNotifications = async (req: any, res: Response) => {
   try {
     const currUser: any = await user.findOne({ Email: req.user.email });
     const userNotifications = await usernotifications.find({
-      Email: currUser.Email,
+      _id: currUser._id,
     });
 
+    console.log("userNotifications", userNotifications);
     const allNotifications = await notifications.find();
     // console.log(allNotifications);
     const announcementResponse: any = allNotifications.map((notification) => ({
@@ -229,6 +230,11 @@ export const getAllNotifications = async (req: any, res: Response) => {
         sortParam: notification.Date,
       });
     });
+
+    console.log(
+      "announcement response ----------------------",
+      announcementResponse
+    );
 
     const allFeedbacks = await feedbackForm.find();
     //first check whether the user has submitted the feedback or not
