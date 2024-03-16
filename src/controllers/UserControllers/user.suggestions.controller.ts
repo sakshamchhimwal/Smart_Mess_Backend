@@ -3,6 +3,10 @@ import UserModel from "../../models/user";
 import createHttpError from "http-errors";
 import SuggestionsModel from "../../models/suggestions";
 import mongoose from "mongoose";
+import { sendNotification } from "../../config/firebaseWeb";
+import notificationToken from "../../models/notificationToken";
+import usernotifications from "../../models/usernotifications";
+import e from "cors";
 
 export const getSuggestions = async (
   req: any,
@@ -331,6 +335,7 @@ export const markAsClosed = async (
 ) => {
   const loggedInUserData = req.user;
   try {
+    // Find the current user based on email
     const currUser = await UserModel.findOne({
       Email: loggedInUserData.email,
     });
@@ -340,10 +345,10 @@ export const markAsClosed = async (
 
     const suggestionId = req.body.suggestionId;
 
+    // Update the suggestion to mark it as closed if it belongs to the current user
     const updateSuggestion = await SuggestionsModel.updateOne(
       {
         _id: suggestionId,
-        userId: currUser._id,
       },
       {
         $set: {
@@ -352,14 +357,59 @@ export const markAsClosed = async (
       }
     );
 
-    if (updateSuggestion.modifiedCount > 0) {
-      res.status(204).send({});
-    } else {
-      res.status(404).send({ message: "Suggestion Not Found" });
+    if (updateSuggestion.modifiedCount <= 0) {
+      return res.status(404).send({ message: "Suggestion Not Found" });
     }
+
+    const title = "Issue Closed";
+    const body = `Issue has been closed by ${currUser.Username}`;
+
+    // Array to store notification tokens
+    const tokens: string[] = [];
+
+    // Get notification token for the current user
+    const userToken = await notificationToken.findOne({ userId: currUser._id });
+    if (userToken) {
+      tokens.push(userToken.Token);
+    }
+
+    // Get notification tokens for secretaries, admins, and mess managers
+    const users = await UserModel.find({
+      $or: [{ Role: "admin" }, { Role: "secy" }, { Role: "manager" }],
+    });
+
+    await usernotifications.create({
+      Title: title,
+      Message: body,
+      sendTo: users.map((user) => user._id),
+      Date: Date.now(),
+      readBy: [],
+    });
+
+    for (const user of users) {
+      const userToken = await notificationToken.findOne({ Email: user.Email });
+      if (userToken) {
+        tokens.push(userToken.Token);
+      }
+    }
+    console.log("tokens:", tokens);
+    // Remove any empty tokens
+    const tokenList = tokens.filter((token) => !!token);
+
+    // Send notifications to all tokens
+    for (var i = 0; i < tokenList.length; i++) {
+      try {
+        await sendNotification(tokenList[i], title, body);
+      } catch (err) {
+        console.error("Error sending notification:", err);
+      }
+    }
+
+    // Return success response
+    return res.status(204).send({});
   } catch (err) {
     console.error(err);
-    next(createHttpError(500, "Internal Server Error"));
+    return next(createHttpError(500, "Internal Server Error"));
   }
 };
 
@@ -407,9 +457,11 @@ export const markAsClosedAdmin = async (
     const currUser = await UserModel.findOne({
       Email: loggedInUserData.email,
     });
+
     if (!currUser) {
       return next(createHttpError(403, "Unauthorized"));
-    } else if (currUser.Role !== "admin" || "secy") {
+    } else if (currUser.Role !== "admin" && currUser.Role !== "secy") {
+      // Corrected condition
       const suggestionId = req.body.suggestionId;
 
       const updateSuggestion = await SuggestionsModel.updateOne(
@@ -424,11 +476,39 @@ export const markAsClosedAdmin = async (
         }
       );
 
-      if (updateSuggestion.modifiedCount > 0) {
-        res.status(204).send({});
-      } else {
-        res.status(404).send({ message: "Suggestion Not Found" });
+      const suggestion = await SuggestionsModel.findOne({ _id: suggestionId });
+
+      if (!suggestion) {
+        return res.status(404).send({ message: "Suggestion Not Found" });
       }
+
+      const user = await UserModel.findOne({ _id: suggestion.userId });
+
+      if (!user) {
+        return res.status(404).send({ message: "User Not Found" });
+      }
+
+      const title = "Issue Closed by Admin";
+      const body = `Issue has been closed by ${currUser.Username}`;
+
+      await usernotifications.create({
+        Title: title,
+        Message: body,
+        sendTo: user._id,
+        Date: Date.now(),
+        readBy: [],
+      });
+
+      const token = await notificationToken.findOne({ Email: user.Email });
+      if (!token) {
+        return res
+          .status(404)
+          .send({ message: "Notification Token Not Found" });
+      }
+
+      await sendNotification(token.Token, title, body);
+
+      res.status(204).send({});
     } else {
       return next(createHttpError(403, "Unauthorized to perform this action"));
     }
