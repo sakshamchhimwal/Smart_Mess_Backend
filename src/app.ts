@@ -54,8 +54,9 @@ app.use(cors());
 app.use(cookieParser());
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit:"20mb" }));
 app.use(compression());
+
 
 //serve files of path /static
 app.use("/api/static", express.static(path.join(__dirname, "..", "public")));
