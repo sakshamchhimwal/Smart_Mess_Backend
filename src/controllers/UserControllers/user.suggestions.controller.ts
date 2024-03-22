@@ -7,6 +7,7 @@ import { sendNotification } from "../../config/firebaseWeb";
 import notificationToken from "../../models/notificationToken";
 import usernotifications from "../../models/usernotifications";
 import e from "cors";
+import { deleteFromCloudinary } from "../../services/uploadToCloudinary";
 
 export const getSuggestions = async (
   req: any,
@@ -65,7 +66,6 @@ export const postSuggestion = async (
     }
     const messId = currUser.Eating_Mess;
     const newSuggestion = req.body;
-    console.log(req.body);
     const addSuggestion = await SuggestionsModel.create({
       messId,
       userId: currUser._id,
@@ -136,18 +136,22 @@ export const deleteSuggestion = async (
     if (!currUser) {
       return next(createHttpError(403, "Unauthorized"));
     }
-
     const suggestionId = req.query.suggestionId;
-    const deletedSuggestion = await SuggestionsModel.findOneAndDelete({
+    const currSuggestion = await SuggestionsModel.findOne({
       _id: suggestionId,
       userId: currUser._id,
     });
-
-    if (deletedSuggestion) {
-      // console.log(deletedSuggestion);
+    if (currSuggestion) {
+      const imageUrl = currSuggestion.image?.split('/');
+      if (imageUrl != null) {
+        const imagePublicID = imageUrl[imageUrl?.length - 1].split('.')[0];
+        const publicID = `Smart_Mess/User_Uploads/${imagePublicID}`;
+        await deleteFromCloudinary(publicID);
+        await currSuggestion.deleteOne();
+      }
       res
         .status(200)
-        .send({ message: "Sugestion deleted successfully", deletedSuggestion });
+        .send({ message: "Sugestion deleted successfully", deletedSuggestion: currSuggestion });
     } else {
       res.status(404).send({ message: "Suggestion Not Found" });
     }
@@ -303,13 +307,13 @@ export const voteSuggestionComment = async (
     const updateType =
       req.body.upvote === true
         ? {
-            $addToSet: { "children.$.upvotes": currUser._id },
-            $pull: { "children.$.downvotes": currUser._id },
-          }
+          $addToSet: { "children.$.upvotes": currUser._id },
+          $pull: { "children.$.downvotes": currUser._id },
+        }
         : {
-            $pull: { "children.$.upvotes": currUser._id },
-            $addToSet: { "children.$.downvotes": currUser._id },
-          };
+          $pull: { "children.$.upvotes": currUser._id },
+          $addToSet: { "children.$.downvotes": currUser._id },
+        };
     const newVote = await SuggestionsModel.updateOne(
       {
         _id: suggestionId,

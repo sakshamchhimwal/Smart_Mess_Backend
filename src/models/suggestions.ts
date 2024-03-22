@@ -55,4 +55,5 @@ const Suggestions = new Schema({
   },
 });
 
+
 export default mongoose.model("suggestions", Suggestions);

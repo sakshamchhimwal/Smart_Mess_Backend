@@ -41,8 +41,18 @@ export const uploadToCloudinary = async (
 		next();
 	} catch (err) {
 		const mute = err;
-		console.log({cloudinaryError:err});
+		console.log({ cloudinaryError: err });
 		console.error("Error Occured in Cloudinary Upload");
 		return next(createHttpError(500));
 	}
 };
+
+
+export const deleteFromCloudinary = async (publicID: string) => {
+	cloudinary.uploader.destroy(publicID).then(() => {
+		return 1;
+	}).catch((err) => {
+		console.log(err);
+		throw Error("cloudinary delete error");
+	})
+}
