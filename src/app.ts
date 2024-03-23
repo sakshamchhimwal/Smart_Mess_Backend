@@ -96,26 +96,111 @@ app.get("/api/userstats", async (req: Request, res: Response) => {
     res.status(500).send('Internal Server Error');
   }
 });
-app.get('/api/average-ratings', async (req, res) => {
+
+app.get('/api/running-average-ratings', async (req, res) => {
   try {
     const ratings = await actualFeedback.aggregate([
       {
+        $sort: { Date: 1 }
+      },
+      {
         $group: {
-          _id: null,
-          AverageBreakfastRating: { $avg: "$BreakfastRating" },
-          AverageLunchRating: { $avg: "$LunchRating" },
-          AverageDinnerRating: { $avg: "$DinnerRating" },
-          AverageSnacksRating: { $avg: "$SnacksRating" },
-          AverageMessServiceRating: { $avg: "$MessServiceRating" },
-          AverageHygieneRating: { $avg: "$HygieneRating" },
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$Date" }
+          },
+          DailyAverageBreakfastRating: { $avg: "$BreakfastRating" },
+          DailyAverageLunchRating: { $avg: "$LunchRating" },
+          DailyAverageDinnerRating: { $avg: "$DinnerRating" },
+          DailyAverageSnacksRating: { $avg: "$SnacksRating" },
+          DailyAverageMessServiceRating: { $avg: "$MessServiceRating" },
+          DailyAverageHygieneRating: { $avg: "$HygieneRating" },
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      },
+      {
+        $setWindowFields: {
+          sortBy: { _id: 1 },
+          output: {
+            RunningAverageBreakfastRating: {
+              $sum: "$DailyAverageBreakfastRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            RunningAverageLunchRating: {
+              $sum: "$DailyAverageLunchRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            RunningAverageDinnerRating: {
+              $sum: "$DailyAverageDinnerRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            RunningAverageSnacksRating: {
+              $sum: "$DailyAverageSnacksRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            RunningAverageMessServiceRating: {
+              $sum: "$DailyAverageMessServiceRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            RunningAverageHygieneRating: {
+              $sum: "$DailyAverageHygieneRating",
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            },
+            // Additional calculations for Snacks, Mess Service, and Hygiene
+            RunningTotalDays: {
+              $count: {},
+              window: {
+                documents: ["unbounded", "current"]
+              }
+            }
+          }
+        }
+      },
+      {
+        $set: {
+          RunningAverageBreakfastRating: { $divide: ["$RunningAverageBreakfastRating", "$RunningTotalDays"] },
+          RunningAverageLunchRating: { $divide: ["$RunningAverageLunchRating", "$RunningTotalDays"] },
+          RunningAverageDinnerRating: { $divide: ["$RunningAverageDinnerRating", "$RunningTotalDays"] },
+          RunningAverageSnacksRating: { $divide: ["$RunningAverageSnacksRating", "$RunningTotalDays"] },
+          RunningAverageMessServiceRating: { $divide: ["$RunningAverageMessServiceRating", "$RunningTotalDays"] },
+          RunningAverageHygieneRating: { $divide: ["$RunningAverageHygieneRating", "$RunningTotalDays"] },
+
+          // Division for Snacks, Mess Service, and Hygiene running averages
         }
       }
     ]);
-    res.json(ratings);
+    console.log(ratings);
+    res.json(ratings.map(item => ({
+      Date: item._id, // The date is now formatted as a string
+      RunningAverageBreakfastRating: item.RunningAverageBreakfastRating,
+      RunningAverageLunchRating: item.RunningAverageLunchRating,
+      RunningAverageDinnerRating: item.RunningAverageDinnerRating,
+      RunningAverageSnacksRating: item.RunningAverageSnacksRating,
+      RunningAverageMessServiceRating: item.RunningAverageMessServiceRating,
+      RunningAverageHygieneRating: item.RunningAverageHygieneRating,
+      // Include the calculated averages for Snacks, Mess Service, and Hygiene
+    })));
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
