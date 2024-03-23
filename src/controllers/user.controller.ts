@@ -206,7 +206,6 @@ export const getAllNotifications = async (req: any, res: Response) => {
 
     console.log("userNotifications", userNotifications);
     const allNotifications = await notifications.find();
-    // console.log(allNotifications);
     const announcementResponse: any = allNotifications.map((notification) => ({
       _id: notification._id,
       Title: notification.Title,
@@ -231,11 +230,6 @@ export const getAllNotifications = async (req: any, res: Response) => {
       });
     });
 
-    console.log(
-      "announcement response ----------------------",
-      announcementResponse
-    );
-
     const allFeedbacks = await feedbackForm.find();
     //first check whether the user has submitted the feedback or not
     //if yes then don't show the feedback form
@@ -257,7 +251,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
           Description: feedback.Description,
           FormStartDate: feedback.FormStartDate,
           FormEndDate: feedback.FormEndDate,
-          messageType: "feedback", // render
+          messageType: "feedback",
           sortParam: feedback.FormStartDate,
         };
       })
@@ -265,7 +259,6 @@ export const getAllNotifications = async (req: any, res: Response) => {
     let response = null;
     if (feedbackResponse) response = feedbackResponse;
     if (announcementResponse) response = response.concat(announcementResponse);
-    // console.log(response);
     if (response) {
       response.sort((a: any, b: any) => {
         return b ? b.sortParam - a.sortParam : 0;
@@ -325,10 +318,9 @@ export const makeAllRead = async (req: any, res: Response) => {
 
 export const submitFeedback = async (req: any, res: Response) => {
   try {
-    console.log(req.body);
     const currUser = await user.findOne({ Email: req.user.email });
     const {
-      FormID,
+      // FormID,
       BreakfastRating,
       LunchRating,
       DinnerRating,
@@ -337,21 +329,42 @@ export const submitFeedback = async (req: any, res: Response) => {
       MessServiceRating,
       HygieneRating,
     } = req.body;
-    await actualFeedback.create({
-      Email: currUser?.Email,
-      FormID: FormID,
-      BreakfastRating: BreakfastRating,
-      LunchRating: LunchRating,
-      DinnerRating: DinnerRating,
-      SnacksRating: SnacksRating,
-      Comments: Comments,
-      MessServiceRating: MessServiceRating,
-      HygieneRating: HygieneRating,
+
+    if (!currUser) {
+      return res.status(404).send("No User Exists");
+    }
+
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+
+    const exists = await actualFeedback.findOne({
+      Email: req.user.email,
+      Date: formattedDate,
     });
-    res.send("Feedback Submitted").status(200);
+
+    if (exists) {
+      return res.status(409).send("Feedback Already Exists");
+    } else {
+      await actualFeedback.create({
+        Email: currUser?.Email,
+        Date: formattedDate,
+        BreakfastRating,
+        LunchRating,
+        DinnerRating,
+        SnacksRating,
+        Comments,
+        MessServiceRating,
+        HygieneRating,
+      });
+
+      return res.status(200).send("Feedback Submitted");
+    }
   } catch (err) {
     console.log(err);
-    res.status(501).send("Internal Server Error");
+    return res.status(500).send("Internal Server Error");
   }
 };
 
