@@ -204,7 +204,6 @@ export const getAllNotifications = async (req: any, res: Response) => {
       sendTo: currUser._id,
     });
 
-    console.log("userNotifications", userNotifications);
     const allNotifications = await notifications.find();
     const announcementResponse: any = allNotifications.map((notification) => ({
       _id: notification._id,
@@ -225,7 +224,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
         Date: notification.Date,
         Attachment: notification.Attachment,
         read: notification.readBy.includes(currUser._id),
-        messageType: "Mark as read",
+        messageType: "Mark as resolved",
         sortParam: notification.Date,
       });
     });
@@ -272,16 +271,30 @@ export const getAllNotifications = async (req: any, res: Response) => {
 };
 
 export const makeRead = async (req: any, res: Response) => {
-  console.log(req);
+  console.log(req.body);
   try {
-    // const email = ('user' in req) ? req.user.email : null;
     const currUser: any = await user.findOne({ Email: req.user.email });
     const notifId = req.body.notifId;
-    const notif = await notifications.findOne({ _id: notifId });
+    const type = req.body.type;
+    let notif;
+
+    if (type === "Mark as resolved") {
+      notif = await usernotifications.findOne({ _id: notifId });
+    } else {
+      notif = await notifications.findOne({ _id: notifId });
+    }
+
     if (notif) {
-      await notifications.findByIdAndUpdate(notif._id, {
-        $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
-      });
+      if (type === "Mark as resolved") {
+        await usernotifications.findByIdAndUpdate(notif._id, {
+          $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
+        });
+      } else {
+        await notifications.findByIdAndUpdate(notif._id, {
+          $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
+        });
+      }
+
       return res.send("Read").status(200);
     } else {
       return res.send("Unexpected Error").status(404);
