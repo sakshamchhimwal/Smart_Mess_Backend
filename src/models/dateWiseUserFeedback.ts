@@ -1,24 +1,29 @@
+import dayjs from "dayjs";
 import mongoose, { Schema } from "mongoose";
-
-const date = new Date(Date.now());
-
-const makeDate = (date: Date) => {
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
-}
+import userModel from "../models/user"
+import foodItemsModel from "../models/mealItem"
 
 const user_food_review = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         required: true,
+        ref: userModel.modelName
     },
     date: {
         type: Date,
-        default: makeDate(date)
+        default: dayjs().format('YYYY-MM-DD')
     },
-    ratings: Schema.Types.Array
+    ratings: [
+        {
+            foodId: {
+                type: Schema.Types.ObjectId,
+                ref: foodItemsModel.modelName,
+                require: "true"
+            },
+            review: Schema.Types.String,
+            rating: Schema.Types.Number
+        }
+    ],
 })
 
 export default mongoose.model("UserFoodReview", user_food_review);

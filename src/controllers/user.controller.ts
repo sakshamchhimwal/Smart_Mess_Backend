@@ -3,9 +3,7 @@ import actualFeedback from "../models/actualFeedback";
 import feedbackForm from "../models/feedbackForm";
 import notificationToken from "../models/notificationToken";
 import notifications from "../models/notifications";
-import { CustomRequest } from "../Interface/interfaces";
 import express, { Request, Response, NextFunction } from "express";
-import User_Schema from "../models/user";
 import {
   GoogleUserResult,
   JWTLoadData,
@@ -19,6 +17,7 @@ import mongoose from "mongoose";
 import NodeCache from "node-cache";
 import dateWiseUserFeedback from "../models/dateWiseUserFeedback";
 import usernotifications from "../models/usernotifications";
+import dayjs from "dayjs";
 
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
@@ -72,7 +71,7 @@ export const userTimeTable = async (
       }
     }
   } catch (e) {
-    res.send("Unexpected Error").status(501);
+    res.send("Unexpected Error").status(500);
     console.log(e);
   }
 };
@@ -93,7 +92,7 @@ export const userDetails = async (
       res.send(currUser).status(200);
     }
   } catch (error) {
-    res.status(501).send("Some Error Occured");
+    res.status(500).send("Some Error Occured");
     console.log(error);
   }
 };
@@ -141,7 +140,7 @@ export const giveRating = async (req: any, res: Response) => {
     }
   } catch (err) {
     console.log("Error giveRating", err);
-    return res.status(501).send("Interal Server Error");
+    return res.status(500).send("Interal Server Error");
   }
 };
 
@@ -151,7 +150,7 @@ export const getLatestUpdates = async (req: any, res: Response) => {
     //yet to be implemented
   } catch (err) {
     console.log(err);
-    res.status(501).send("Some Error Occured");
+    res.status(500).send("Some Error Occured");
   }
 };
 
@@ -295,7 +294,7 @@ export const makeRead = async (req: any, res: Response) => {
     }
   } catch (err) {
     console.log(err);
-    return res.status(501).send("Internal Server Error");
+    return res.status(500).send("Internal Server Error");
   }
 };
 
@@ -348,10 +347,10 @@ export const submitFeedback = async (req: any, res: Response) => {
       MessServiceRating: MessServiceRating,
       HygieneRating: HygieneRating,
     });
-    res.send("Feedback Submitted").status(200);
+    res.status(200).send("Feedback Submitted");
   } catch (err) {
     console.log(err);
-    res.status(501).send("Internal Server Error");
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -368,18 +367,23 @@ export const getUserFoodReview = async (req: any, res: Response) => {
     if (!currUser) {
       return res.send("No User Exists").status(404);
     }
-    const date = makeDate(new Date(Date.now()));
     const isPresent = await dateWiseUserFeedback.findOne({
       userId: currUser._id,
-      date: date,
+      date: dayjs().format('YYYY-MM-DD'),
+    }).populate({
+      path: 'ratings',
+      populate: {
+        path: 'foodId'
+      }
     });
     if (isPresent) {
-      return res.send(isPresent.ratings).status(200);
+      return res.status(200).send(isPresent.ratings);
     } else {
-      return res.send([]).status(204);
+      return res.status(200).send([]);
     }
   } catch (err) {
-    return res.send("Intrnal Server error").status(501);
+    console.log(err);
+    return res.status(500).send("Intrnal Server error");
   }
 };
 
@@ -389,52 +393,23 @@ export const submitFoodReview = async (req: any, res: Response) => {
     if (!currUser) {
       return res.send("No User Exists").status(403);
     }
+
     const { id, value, comments } = req.body;
-    console.log("Body:", req.body);
-    const date = makeDate(new Date(Date.now()));
-    const isPresent = await dateWiseUserFeedback.findOne({
-      userId: currUser._id,
-      date: date,
-    });
-    try {
-      if (isPresent) {
-        const makeUpdate = await dateWiseUserFeedback.findOneAndUpdate(
-          {
-            userId: currUser._id,
-            date: date,
-          },
-          {
-            $push: {
-              ratings: {
-                foodId: id,
-                rating: value,
-                comments: comments,
-              },
-            },
-          }
-        );
-        return res.send({ message: "FeedBack Added" }).status(200);
-      } else {
-        const makeUpdate = await dateWiseUserFeedback.create({
-          userId: currUser._id,
-          date: date,
-          ratings: [
-            {
-              foodId: id,
-              rating: value,
-              comments: comments,
-            },
-          ],
-        });
-        return res.status(200).send("Feedback Created And FeedBack Added");
-      }
-    } catch (err) {
-      console.log("Err in Updating/Adding");
-      console.log(err);
-      return res.status(501).send("Internal Server Error");
-    }
+    const date = dayjs().format('YYYY-MM-DD');
+
+    const query = { userId: currUser._id, date: date };
+    const newValue = { foodId: id, rating: value, review: comments };
+    console.log(newValue);
+    // Update or create with upsert: true
+    const updateResult = await dateWiseUserFeedback.findOneAndUpdate(query, {
+      $push: { ratings: newValue }
+    }, { upsert: true });
+
+    // Handle successful update/creation
+    return res.send({ message: "FeedBack Added" }).status(200);
+
   } catch (err) {
-    console.log(err);
-    return res.status(501).send("Internal Server Error");
+    console.error("Error adding/updating food review:", err);
+    return res.status(500).send("Internal Server Error");
   }
 };

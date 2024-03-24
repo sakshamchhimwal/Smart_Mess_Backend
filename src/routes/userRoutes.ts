@@ -48,6 +48,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+
 // GET Routes
 userRouter.get("/dashboard/timetable", userTimeTable);
 userRouter.get("/dashboard/notifications", getAllNotifications);
