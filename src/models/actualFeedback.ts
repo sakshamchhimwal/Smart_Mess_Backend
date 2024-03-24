@@ -8,9 +8,8 @@ const feedback = new Schema({
     type: String,
     required: true,
   },
-  FormID : {
-    type: Schema.Types.ObjectId,
-    ref: "FeedbackForm",
+  Date: {
+    type: Date,
     required: true,
   },
   BreakfastRating: {

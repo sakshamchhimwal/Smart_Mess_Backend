@@ -203,9 +203,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
       sendTo: currUser._id,
     });
 
-    console.log("userNotifications", userNotifications);
     const allNotifications = await notifications.find();
-    // console.log(allNotifications);
     const announcementResponse: any = allNotifications.map((notification) => ({
       _id: notification._id,
       Title: notification.Title,
@@ -225,15 +223,10 @@ export const getAllNotifications = async (req: any, res: Response) => {
         Date: notification.Date,
         Attachment: notification.Attachment,
         read: notification.readBy.includes(currUser._id),
-        messageType: "Mark as read",
+        messageType: "Mark as resolved",
         sortParam: notification.Date,
       });
     });
-
-    console.log(
-      "announcement response ----------------------",
-      announcementResponse
-    );
 
     const allFeedbacks = await feedbackForm.find();
     //first check whether the user has submitted the feedback or not
@@ -256,7 +249,7 @@ export const getAllNotifications = async (req: any, res: Response) => {
           Description: feedback.Description,
           FormStartDate: feedback.FormStartDate,
           FormEndDate: feedback.FormEndDate,
-          messageType: "feedback", // render
+          messageType: "feedback",
           sortParam: feedback.FormStartDate,
         };
       })
@@ -264,7 +257,6 @@ export const getAllNotifications = async (req: any, res: Response) => {
     let response = null;
     if (feedbackResponse) response = feedbackResponse;
     if (announcementResponse) response = response.concat(announcementResponse);
-    // console.log(response);
     if (response) {
       response.sort((a: any, b: any) => {
         return b ? b.sortParam - a.sortParam : 0;
@@ -278,16 +270,30 @@ export const getAllNotifications = async (req: any, res: Response) => {
 };
 
 export const makeRead = async (req: any, res: Response) => {
-  console.log(req);
+  console.log(req.body);
   try {
-    // const email = ('user' in req) ? req.user.email : null;
     const currUser: any = await user.findOne({ Email: req.user.email });
     const notifId = req.body.notifId;
-    const notif = await notifications.findOne({ _id: notifId });
+    const type = req.body.type;
+    let notif;
+
+    if (type === "Mark as resolved") {
+      notif = await usernotifications.findOne({ _id: notifId });
+    } else {
+      notif = await notifications.findOne({ _id: notifId });
+    }
+
     if (notif) {
-      await notifications.findByIdAndUpdate(notif._id, {
-        $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
-      });
+      if (type === "Mark as resolved") {
+        await usernotifications.findByIdAndUpdate(notif._id, {
+          $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
+        });
+      } else {
+        await notifications.findByIdAndUpdate(notif._id, {
+          $addToSet: { readBy: [new mongoose.Types.ObjectId(currUser._id)] },
+        });
+      }
+
       return res.send("Read").status(200);
     } else {
       return res.send("Unexpected Error").status(404);
@@ -324,10 +330,9 @@ export const makeAllRead = async (req: any, res: Response) => {
 
 export const submitFeedback = async (req: any, res: Response) => {
   try {
-    console.log(req.body);
     const currUser = await user.findOne({ Email: req.user.email });
     const {
-      FormID,
+      // FormID,
       BreakfastRating,
       LunchRating,
       DinnerRating,
@@ -336,21 +341,42 @@ export const submitFeedback = async (req: any, res: Response) => {
       MessServiceRating,
       HygieneRating,
     } = req.body;
-    await actualFeedback.create({
-      Email: currUser?.Email,
-      FormID: FormID,
-      BreakfastRating: BreakfastRating,
-      LunchRating: LunchRating,
-      DinnerRating: DinnerRating,
-      SnacksRating: SnacksRating,
-      Comments: Comments,
-      MessServiceRating: MessServiceRating,
-      HygieneRating: HygieneRating,
+
+    if (!currUser) {
+      return res.status(404).send("No User Exists");
+    }
+
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+
+    const exists = await actualFeedback.findOne({
+      Email: req.user.email,
+      Date: formattedDate,
     });
-    res.status(200).send("Feedback Submitted");
+
+    if (exists) {
+      return res.status(409).send("Feedback Already Exists");
+    } else {
+      await actualFeedback.create({
+        Email: currUser?.Email,
+        Date: formattedDate,
+        BreakfastRating,
+        LunchRating,
+        DinnerRating,
+        SnacksRating,
+        Comments,
+        MessServiceRating,
+        HygieneRating,
+      });
+
+      return res.status(200).send("Feedback Submitted");
+    }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal Server Error");
+    return res.status(500).send("Internal Server Error");
   }
 };
 
