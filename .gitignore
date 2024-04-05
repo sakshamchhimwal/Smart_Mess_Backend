@@ -130,3 +130,7 @@ dist
 .pnp.*
 
 **/tmp
+
+**/venv
+
+**/format.bat
