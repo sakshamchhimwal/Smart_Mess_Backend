@@ -1,15 +1,11 @@
-
 import math
 import requests
 import json
 from bs4 import BeautifulSoup
 import os
-
 from utils import generateFallbackURL, generatePriceURL, generateRecipieURL, logger, parseRecipie
 
-
 script_dir = os.path.dirname(__file__)
-
 
 def getPlateCosts():
     try:
@@ -32,14 +28,15 @@ def getPlateCosts():
                 for foodItem in mealRecipie:
                     currCost.append(getFoodCost(foodItemName=foodItem['name'], quantity=foodItem['weight']))
             foodCost.append({
-                "mealType" : mealType,
-                "costs" : list(filter(None, currCost))
+                "mealType": mealType,
+                "costs": list(filter(None, currCost))
             })
 
         return foodCost
 
     except Exception as e:
         logger("error.log", f'[getPlateCosts] Error occured due to {e}')
+
 
 def getFoodRecipie(foodItem, mealType):
     try:
@@ -51,26 +48,27 @@ def getFoodRecipie(foodItem, mealType):
     except Exception as e:
         logger("error.log", f'[getFoodRecipie] Error occured due to {e}')
 
+
 def fallbackGetFoodCost(foodItemName, quantity):
     try:
         url = generateFallbackURL(foodItemName)
         response = requests.get(url=url).text
-        
+
         parsedHTML = BeautifulSoup(response, "html.parser").text
-        
-        text = parsedHTML.encode("ascii","ignore").decode("ascii").replace('\n\n','').replace(' ','').replace('\t','')
+
+        text = parsedHTML.encode("ascii", "ignore").decode("ascii").replace('\n\n', '').replace(' ', '').replace('\t', '')
         idx = text.find("AveragePrice")
         text = text[idx:]
         price = float(text.split('\n')[1].split('/')[0])
-        
+
         return {
             "name": foodItemName,
-            "cost": quantity * (price/100000.0)
+            "cost": quantity * (price / 100000.0)
         }
 
-    
     except Exception as e:
         logger("error.log", f'[fallbackGetFoodCost] Error occured due to {e} {foodItemName, quantity}')
+
 
 def getFoodCost(foodItemName, quantity):
     try:
@@ -111,9 +109,9 @@ def getFoodCost(foodItemName, quantity):
     except Exception as e:
         logger("error.log", f'[getFoodCost] Error occured due to {e} {foodItemName, quantity}')
         logger("error.log", f'[getFoodCost] Going for fallback')
-        
+
         return fallbackGetFoodCost(foodItemName=foodItemName, quantity=quantity)
-        
+
 
 plateCost = getPlateCosts()
 logger("platecost.json", json.dumps(plateCost, indent=4))

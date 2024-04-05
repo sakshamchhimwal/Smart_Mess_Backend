@@ -35,6 +35,7 @@ def generatePriceURL(foodItemName: str) -> str:
     }
     return (food_price_base_url, params)
 
+
 def generateFallbackURL(foodItemName: str) -> str:
     currUrl = fallback_url
     currUrl = currUrl.format(foodItemName)
@@ -52,8 +53,9 @@ def parseRecipie(items: list[str]) -> dict[str, float]:
 
     return foodItemQuantity
 
+
 def logger(filename="logs.log", text=""):
-    with open(filename,"a") as f:
+    with open(filename, "a") as f:
         f.write(f'[{str(datetime.datetime.today())}]\n')
         f.write(text)
         f.write("\r\n")
