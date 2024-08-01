@@ -133,10 +133,10 @@ export const managerTimeTable = async (
             };
           })
         );
-        let success = myCache.set("manTT", ttSer, 3000);
-        if (success) {
-          console.log("cached the tt");
-        }
+        // let success = myCache.set("manTT", ttSer, 3000);
+        // if (success) {
+        //   console.log("cached the tt");
+        // }
         return res.send(ttSer);
       } else {
         return res.send(value).status(216);
